@@ -23,8 +23,9 @@ defmodule Dash.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:scenic_live_reload, github: "axelson/scenic_live_reload", branch: "wip-v0.11"},
       {:scenic, "~> 0.11.0-beta.0"},
-      {:scenic_driver_local, "~> 0.11.0-beta.0", targets: :host},
+      {:scenic_driver_local, "~> 0.11.0-beta.0", targets: :host}
     ]
   end
 end

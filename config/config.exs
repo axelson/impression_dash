@@ -1,7 +1,4 @@
-# This file is responsible for configuring your application
-# and its dependencies with the aid of the Mix.Config module.
-use Mix.Config
-
+import Config
 
 # connect the app's asset module to Scenic
 config :scenic, :assets,
@@ -23,6 +20,18 @@ config :dash, :viewport, [
     ]
   ]
 ]
+
+case Mix.env() do
+  :dev ->
+    config :exsync,
+      reload_timeout: 150,
+      reload_callback: {ScenicLiveReload, :reload_current_scene, []}
+
+  _ ->
+    nil
+end
+
+config :logger, :console, format: "$time $metadata[$level] $message\n"
 
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment
