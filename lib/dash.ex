@@ -1,17 +1,14 @@
 defmodule Dash do
-  @moduledoc """
-  Starter application using the Scenic framework.
+  @pub_sub :dash_pub_sub
+  @topic "dash_topic"
+
+  def pub_sub, do: @pub_sub
+  def topic, do: @topic
+
+  @doc """
+  Sets centered text
   """
-
-  def start(_type, _args) do
-    # load the viewport configuration from config
-    main_viewport_config = Application.get_env(:dash, :viewport)
-
-    # start the application with the viewport
-    children = [
-      {Scenic, [main_viewport_config]}
-    ]
-
-    Supervisor.start_link(children, strategy: :one_for_one)
+  def set_quote(text) when is_binary(text) do
+    Phoenix.PubSub.broadcast(pub_sub(), topic(), {:set_quote, text})
   end
 end

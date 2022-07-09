@@ -8,7 +8,8 @@ config :scenic, :assets,
 # Configure the main viewport for the Scenic application
 config :dash, :viewport, [
   name: :main_viewport,
-  size: {800, 600},
+  # Make the ssize match the impression's resolution
+  size: {600, 448},
   theme: :dark,
   default_scene: Dash.Scene.Home,
   drivers: [

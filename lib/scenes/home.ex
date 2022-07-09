@@ -1,51 +1,62 @@
 defmodule Dash.Scene.Home do
   use Scenic.Scene
   require Logger
+  import Scenic.Primitives
 
   alias Scenic.Graph
-
-  import Scenic.Primitives
-  # import Scenic.Components
-
-  @note """
-    This is a very simple starter application.
-
-    If you want a more full-on example, please start from:
-
-    mix scenic.new.example
-  """
+  alias ScenicWidgets.Redraw
+  alias ScenicWidgets.GraphState
 
   @text_size 24
+  @default_quote "Inky Impression"
 
-  # ============================================================================
-  # setup
+  defmodule State do
+    @moduledoc false
+    defstruct [:graph]
+  end
 
-  # --------------------------------------------------------
-  def init(scene, _param, _opts) do
-    # get the width and height of the viewport. This is to demonstrate creating
-    # a transparent full-screen rectangle to catch user input
+  @impl Scenic.Scene
+  def init(scene, _params, _opts) do
+    :ok = Phoenix.PubSub.subscribe(Dash.pub_sub(), Dash.topic())
+
     {width, height} = scene.viewport.size
 
-    # show the version of scenic and the glfw driver
-    scenic_ver = Application.spec(:scenic, :vsn) |> to_string()
-    driver_ver = Application.spec(:scenic_driver_local, :vsn) |> to_string()
-
     graph =
-      Graph.build(font: :roboto, font_size: @text_size)
-      |> add_specs_to_graph([
-        text_spec("scenic: v" <> scenic_ver, translate: {20, 40}),
-        text_spec("driver: v" <> driver_ver, translate: {20, 40 + @text_size}),
-        text_spec(@note, translate: {20, 120}),
-        rect_spec({width, height})
-      ])
+      Graph.build(font: :roboto, font_size: @text_size, fill: :black)
+      |> rect({width, height}, fill: :white)
+      |> Redraw.draw(:quote, fn g -> render_text(g, scene.viewport, @default_quote) end)
 
-    scene = push_graph( scene, graph )
+    state = %State{}
+    scene = GraphState.assign_and_push_graph(scene, state, graph)
 
     {:ok, scene}
   end
 
+  @impl Scenic.Scene
   def handle_input(event, _context, scene) do
     Logger.info("Received event: #{inspect(event)}")
     {:noreply, scene}
+  end
+
+  @impl GenServer
+  def handle_info({:set_quote, text}, scene) do
+    scene =
+      GraphState.update_graph(scene, fn graph ->
+        graph
+        |> Redraw.draw(:quote, fn g -> render_text(g, scene.viewport, text) end)
+      end)
+
+    {:noreply, scene}
+  end
+
+  def handle_info(msg, scene) do
+    Logger.info("Unhandled hande_info: #{inspect(msg)}")
+    {:noreply, scene}
+  end
+
+  defp render_text(graph, viewport, text) do
+    {width, _height} = viewport.size
+
+    text(graph, text, id: :quote, translate: {width / 2, 120}, text_align: :center)
   end
 end
