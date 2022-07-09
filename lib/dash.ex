@@ -11,4 +11,9 @@ defmodule Dash do
   def set_quote(text) when is_binary(text) do
     Phoenix.PubSub.broadcast(pub_sub(), topic(), {:set_quote, text})
   end
+
+  def roboto_font_metrics do
+    {:ok, {_type, font_metrics}} = Scenic.Assets.Static.meta(:roboto)
+    font_metrics
+  end
 end

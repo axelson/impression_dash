@@ -7,7 +7,8 @@ defmodule Dash.Scene.Home do
   alias ScenicWidgets.Redraw
   alias ScenicWidgets.GraphState
 
-  @text_size 24
+  @default_text_size 32
+  @font_metrics Dash.roboto_font_metrics()
   @default_quote "Inky Impression"
 
   defmodule State do
@@ -22,7 +23,7 @@ defmodule Dash.Scene.Home do
     {width, height} = scene.viewport.size
 
     graph =
-      Graph.build(font: :roboto, font_size: @text_size, fill: :black)
+      Graph.build(font: :roboto, font_size: @default_text_size, fill: :black)
       |> rect({width, height}, fill: :white)
       |> Redraw.draw(:quote, fn g -> render_text(g, scene.viewport, @default_quote) end)
 
@@ -54,9 +55,11 @@ defmodule Dash.Scene.Home do
     {:noreply, scene}
   end
 
-  defp render_text(graph, viewport, text) do
+  defp render_text(graph, viewport, text) when is_binary(text) do
     {width, _height} = viewport.size
+    max_width = width * 3 / 4
+    wrapped = FontMetrics.wrap(text, max_width, @default_text_size, @font_metrics)
 
-    text(graph, text, id: :quote, translate: {width / 2, 120}, text_align: :center)
+    text(graph, wrapped, id: :quote, translate: {width / 2, 120}, text_align: :center)
   end
 end
