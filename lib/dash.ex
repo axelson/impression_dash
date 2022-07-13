@@ -1,4 +1,6 @@
 defmodule Dash do
+  require Logger
+
   @pub_sub :dash_pub_sub
   @topic "dash_topic"
 
@@ -61,6 +63,7 @@ defmodule Dash do
 
   def display_random_quote do
     quote = Enum.random(all_quotes())
+    Logger.info("Displaying #{quote.text}")
 
     set_quote(quote.text, :white)
   end
