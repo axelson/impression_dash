@@ -23,11 +23,18 @@ defmodule Dash.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:scenic_widget_contrib, path: "~/dev/forks/scenic-widget-contrib"},
+      # Host-only deps
+      {:scenic_driver_local, "~> 0.11.0-beta.0", targets: :host},
+
+      # Other deps
+      {:dotenv_parser, "~> 2.0", only: :dev},
+      {:ecto_sqlite3, "~> 0.7"},
       {:phoenix_pubsub, "~> 2.1"},
-      {:scenic_live_reload, github: "axelson/scenic_live_reload", branch: "wip-v0.11", only: :dev},
+      {:req, "~> 0.3.0"},
       {:scenic, "~> 0.11.0-beta.0"},
-      {:scenic_driver_local, "~> 0.11.0-beta.0", targets: :host}
+      {:scenic_live_reload,
+       github: "axelson/scenic_live_reload", branch: "wip-v0.11", only: :dev},
+      {:scenic_widget_contrib, path: "~/dev/forks/scenic-widget-contrib"}
     ]
   end
 end

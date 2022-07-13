@@ -1,12 +1,20 @@
 import Config
 
-# connect the app's asset module to Scenic
-config :scenic, :assets,
-  module: Dash.Assets
+config :dash, Dash.Repo,
+  database: "priv/dash_database.db",
+  migration_primary_key: [type: :binary_id],
+  journal_mode: :wal,
+  cache_size: -64_000,
+  temp_store: :memory,
+  pool_size: 1
 
+config :dash, ecto_repos: [Dash.Repo]
+
+# connect the app's asset module to Scenic
+config :scenic, :assets, module: Dash.Assets
 
 # Configure the main viewport for the Scenic application
-config :dash, :viewport, [
+config :dash, :viewport,
   name: :main_viewport,
   # Make the ssize match the impression's resolution
   size: {600, 448},
@@ -20,7 +28,6 @@ config :dash, :viewport, [
       on_close: :stop_system
     ]
   ]
-]
 
 case Mix.env() do
   :dev ->

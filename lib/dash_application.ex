@@ -7,6 +7,7 @@ defmodule DashApplication do
     main_viewport_config = Application.get_env(:dash, :viewport)
 
     children = [
+      Dash.Repo,
       {Phoenix.PubSub, name: Dash.pub_sub()},
       {Scenic, [main_viewport_config]}
     ]

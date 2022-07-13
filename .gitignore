@@ -26,3 +26,8 @@ foo-*.tar
 # Ignore scripts marked as secret - usually passwords and such in config files
 *.secret.exs
 *.secrets.exs
+.env
+
+priv/dash_database.db
+priv/dash_database.db-shm
+priv/dash_database.db-wal
