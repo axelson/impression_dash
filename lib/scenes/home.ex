@@ -20,12 +20,10 @@ defmodule Dash.Scene.Home do
   def init(scene, _params, _opts) do
     :ok = Phoenix.PubSub.subscribe(Dash.pub_sub(), Dash.topic())
 
-    {width, height} = scene.viewport.size
-
     graph =
       Graph.build(font: :roboto, font_size: @default_text_size, fill: :black)
-      |> rect({width, height}, fill: :white)
-      |> Redraw.draw(:quote, fn g -> render_text(g, scene.viewport, @default_quote) end)
+      |> render_background(scene.viewport, :white)
+      |> render_text(scene.viewport, @default_quote)
 
     state = %State{}
     scene = GraphState.assign_and_push_graph(scene, state, graph)
@@ -40,10 +38,11 @@ defmodule Dash.Scene.Home do
   end
 
   @impl GenServer
-  def handle_info({:set_quote, text}, scene) do
+  def handle_info({:set_quote, text, bg_color}, scene) do
     scene =
       GraphState.update_graph(scene, fn graph ->
         graph
+        |> Redraw.draw(:bg, fn g -> render_background(g, scene.viewport, bg_color) end)
         |> Redraw.draw(:quote, fn g -> render_text(g, scene.viewport, text) end)
       end)
 
@@ -60,6 +59,17 @@ defmodule Dash.Scene.Home do
     max_width = width * 3 / 4
     wrapped = FontMetrics.wrap(text, max_width, @default_text_size, @font_metrics)
 
-    text(graph, wrapped, id: :quote, translate: {width / 2, 120}, text_align: :center)
+    text(graph, wrapped,
+      id: :quote,
+      translate: {width / 2, 120},
+      text_align: :center,
+      fill: :black
+    )
+  end
+
+  defp render_background(graph, viewport, bg_color) do
+    {width, height} = viewport.size
+
+    rect(graph, {width, height}, id: :bg, fill: bg_color)
   end
 end
