@@ -24,6 +24,9 @@ defmodule Dash.Scene.Home do
       Graph.build(font: :roboto, font_size: @default_text_size, fill: :black)
       |> render_background(scene.viewport, :white)
       |> render_text(scene.viewport, @default_quote)
+      |> Redraw.draw(:sparkline, fn g ->
+        Dash.Sparkline.ScenicComponent.add_to_graph(g, nil, t: {10, 10})
+      end)
 
     state = %State{}
     scene = GraphState.assign_and_push_graph(scene, state, graph)

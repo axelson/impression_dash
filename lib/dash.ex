@@ -96,4 +96,32 @@ defmodule Dash do
 
   defp trello_key, do: Application.fetch_env!(:dash, :trello_api_key)
   defp trello_token, do: Application.fetch_env!(:dash, :trello_api_token)
+
+  def demo do
+    demo_web_color_parse()
+  end
+
+  def demo_web_color_parse do
+    color = "rgba(0, 200, 50, 0.2)"
+    Dash.WebColorParser.raw_parse(color)
+    |> IO.inspect(label: "web_color_parse (dash.ex:107)")
+  end
+
+  def demo_path_parse do
+    # path =
+    #   "M0 11.6 L 1 9.6 L 2 7.600000000000001 L 3 2.3999999999999986 L 4 12.8 L 5 2.0 L 6 10.0 L 7 9.200000000000001 L 8 1.6000000000000014 L 9 1.6000000000000014 L 10 11.2 L 11 17.6 L 12 4.800000000000001 L 13 13.600000000000001 L 14 3.200000000000001 L 15 4.0 L 16 1.1999999999999993V 18 L 0 18 Z"
+
+    path = "M 10,10 11.1,12.5
+           L 90,90
+           V 10
+           H 50"
+
+    Dash.SvgPathParser.parse(path)
+    |> IO.inspect(
+      label: "test (parser_test.ex:54)",
+      limit: :infinity,
+      charlists: false,
+      pretty: true
+    )
+  end
 end
