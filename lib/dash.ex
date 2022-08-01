@@ -3,9 +3,11 @@ defmodule Dash do
 
   @pub_sub :dash_pub_sub
   @topic "dash_topic"
+  @task_supervisor :dash_task_supervisor
 
   def pub_sub, do: @pub_sub
   def topic, do: @topic
+  def task_sup, do: @task_supervisor
 
   @doc """
   Sets centered text

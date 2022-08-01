@@ -39,6 +39,7 @@ defmodule Dash.MixProject do
       {:dotenv_parser, "~> 2.0", only: :dev},
       {:ecto_sqlite3, "~> 0.7"},
       {:exsync, path: "~/dev/forks/exsync", override: true, only: :dev},
+      {:nimble_csv, "~> 1.2"},
       {:nimble_parsec, "~> 1.2"},
       {:phoenix_pubsub, "~> 2.1"},
       {:req, "~> 0.3.0"},

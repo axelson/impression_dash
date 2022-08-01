@@ -10,76 +10,9 @@ defmodule Dash.Sparkline.ScenicComponent do
   require Logger
   alias Scenic.Graph
   alias ScenicWidgets.GraphState
+  alias ScenicWidgets.Redraw
 
   @alpha_scale Dash.Scale.new_continuous(domain: {0, 1}, range: {0, 255})
-
-  # @data [50, 74, 100, 103, 82, 55, 75, 73, 54, 54, 78, 94, 62, 84, 58, 60, 53]
-  @data [
-    -83,
-    -78,
-    -58,
-    -67,
-    -74,
-    -58,
-    -78,
-    -86,
-    -90,
-    -57,
-    -68,
-    -69,
-    -98,
-    -85,
-    -80,
-    -79,
-    -98,
-    -88
-    # -68,
-    # -59,
-    # -74,
-    # -88,
-    # -67,
-    # -77,
-    # -67,
-    # -84,
-    # -65,
-    # -52,
-    # -87,
-    # -50,
-    # -50,
-    # -71,
-    # -79,
-    # -95,
-    # -92,
-    # -63,
-    # -85,
-    # -60,
-    # -88,
-    # -55,
-    # -59,
-    # -67,
-    # -90,
-    # -93,
-    # -63,
-    # -95,
-    # -76,
-    # -75,
-    # -91,
-    # -62
-  ]
-
-  @sparkline %Contex.Sparkline{
-    data: @data,
-    extents: {-98, -50},
-    fill_colour: "rgba(0, 200, 50, 0.2)",
-    width: 300,
-    height: 50,
-    length: length(@data),
-    line_colour: "rgba(0, 200, 50, 0.7)",
-    line_width: 1,
-    spot_colour: "red",
-    spot_radius: 2,
-    y_transform: nil
-  }
 
   typedstruct module: State do
     field :graph, Scenic.Graph.t()
@@ -105,27 +38,53 @@ defmodule Dash.Sparkline.ScenicComponent do
     end
   end
 
-  def draw, do: draw(@sparkline)
-
-  def draw(%Contex.Sparkline{} = sparkline) do
-    Dash.Sparkline.parse(sparkline)
-  end
-
   @impl Scenic.Component
   def validate(params), do: {:ok, params}
 
   @impl Scenic.Scene
   def init(scene, _params, _opts) do
-    dash_sparkline = Dash.Sparkline.parse(@sparkline)
+    graph = Graph.build()
 
-    graph =
-      Graph.build()
-      |> render_sparkline(dash_sparkline, [])
+    task =
+      Task.Supervisor.async_nolink(Dash.task_sup(), fn ->
+        {:update_sparkline, Dash.GhStats.run()}
+      end)
 
     state = %State{}
-    scene = GraphState.assign_and_push_graph(scene, state, graph)
+
+    scene =
+      GraphState.assign_and_push_graph(scene, state, graph)
+      |> assign(:task_ref, task.ref)
 
     {:ok, scene}
+  end
+
+  @impl GenServer
+  def handle_info({task_ref, {:update_sparkline, rows}}, scene)
+      when task_ref == scene.assigns.task_ref do
+    data = Enum.map(rows, fn row -> row.num_prs_open end)
+    sparkline = Contex.Sparkline.new(data)
+    dash_sparkline = Dash.Sparkline.parse(sparkline)
+
+    scene =
+      GraphState.update_graph(scene, fn graph ->
+        graph
+        |> Redraw.draw(:sparkline, fn g -> render_sparkline(g, dash_sparkline, []) end)
+      end)
+      |> assign(:task_ref, nil)
+
+    Process.demonitor(task_ref, [:flush])
+
+    {:noreply, scene}
+  end
+
+  def handle_info({:DOWN, _ref, :process, _pid, _reason}, scene) do
+    {:noreply, scene}
+  end
+
+  def handle_info(msg, scene) do
+    Logger.warn("Unhandled message: #{inspect(msg)}")
+    {:noreply, scene}
   end
 
   def scenic_color(web_color_string) do
@@ -161,28 +120,7 @@ defmodule Dash.Sparkline.ScenicComponent do
     )
   end
 
-  _sample = [
-    abs_move_to: [[0, 11.6]],
-    abs_line_to: [[1, 9.6]],
-    abs_line_to: [[2, 7.600000000000001]],
-    abs_line_to: [[3, 2.3999999999999986]],
-    abs_line_to: [[4, 12.8]],
-    abs_line_to: [[5, 2.0]],
-    abs_line_to: [[6, 10.0]],
-    abs_line_to: [[7, 9.200000000000001]],
-    abs_line_to: [[8, 1.6000000000000014]],
-    abs_line_to: [[9, 1.6000000000000014]],
-    abs_line_to: [[10, 11.2]],
-    abs_line_to: [[11, 17.6]],
-    abs_line_to: [[12, 4.800000000000001]],
-    abs_line_to: [[13, 13.600000000000001]],
-    abs_line_to: [[14, 3.200000000000001]],
-    abs_line_to: [[15, 4.0]],
-    abs_line_to: [[16, 1.1999999999999993]]
-  ]
-
   def to_scenic_path(commands, _dash_sparkline) do
-    # IO.inspect(commands, label: "commands (scenic_component.ex:126)")
     path = %Path{x: 0, y: 0, initial_x: 0, initial_y: 0, commands: []}
     path = Path.add_command(path, {:move_to, 0, 0})
 
@@ -193,7 +131,6 @@ defmodule Dash.Sparkline.ScenicComponent do
       end)
 
     Enum.reverse(path.commands)
-    # |> IO.inspect(label: "path commands (scenic_component.ex:137)")
   end
 
   def update_path(path, draw_command)

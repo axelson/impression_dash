@@ -9,6 +9,7 @@ defmodule DashApplication do
     children = [
       Dash.Repo,
       {Phoenix.PubSub, name: Dash.pub_sub()},
+      {Task.Supervisor, name: Dash.task_sup()},
       {Scenic, [main_viewport_config]}
     ]
 
