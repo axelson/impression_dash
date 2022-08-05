@@ -62,7 +62,11 @@ defmodule Dash.Sparkline.ScenicComponent do
   @impl GenServer
   def handle_info({task_ref, {:update_sparkline, rows}}, scene)
       when task_ref == scene.assigns.task_ref do
-    data = Enum.map(rows, fn row -> row.num_prs_open end)
+    data =
+      Enum.map(rows, fn row -> row.num_prs_open end)
+      |> Enum.chunk_every(1, 60)
+      |> List.flatten()
+
     sparkline = Contex.Sparkline.new(data)
     dash_sparkline = Dash.Sparkline.parse(sparkline)
 
@@ -107,17 +111,20 @@ defmodule Dash.Sparkline.ScenicComponent do
     line_color = scenic_color(dash_sparkline.line_color)
 
     graph
-    |> path(to_scenic_path(dash_sparkline.open_path, dash_sparkline),
-      stroke: {dash_sparkline.line_width, line_color},
-      miter_limit: 3,
-      join: :round,
-      scale: scale,
-      scissor: {dash_sparkline.width, dash_sparkline.height}
-    )
-    |> path(to_scenic_path(dash_sparkline.closed_path, dash_sparkline),
-      fill: fill_color,
-      scale: scale
-    )
+    |> group(fn g ->
+      g
+      |> path(to_scenic_path(dash_sparkline.open_path, dash_sparkline),
+        stroke: {dash_sparkline.line_width, line_color},
+        miter_limit: 3,
+        join: :round,
+        scale: scale,
+        scissor: {dash_sparkline.width, dash_sparkline.height}
+      )
+      |> path(to_scenic_path(dash_sparkline.closed_path, dash_sparkline),
+        fill: fill_color,
+        scale: scale
+      )
+    end)
   end
 
   def to_scenic_path(commands, _dash_sparkline) do
