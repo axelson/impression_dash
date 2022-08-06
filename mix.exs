@@ -46,8 +46,8 @@ defmodule Dash.MixProject do
       {:scenic, "~> 0.11.0-beta.0"},
       {:scenic_live_reload,
        github: "axelson/scenic_live_reload", branch: "wip-v0.11", only: :dev},
-      {:scenic_widget_contrib, path: "~/dev/forks/scenic-widget-contrib"},
-      # {:scenic_widget_contrib, github: "axelson/scenic-widget-contrib", branch: "draw-utils"},
+      # {:scenic_widget_contrib, path: "~/dev/forks/scenic-widget-contrib"},
+      {:scenic_widget_contrib, github: "axelson/scenic-widget-contrib", branch: "draw-utils"},
       {:typed_struct, "~> 0.3.0"}
     ]
   end
