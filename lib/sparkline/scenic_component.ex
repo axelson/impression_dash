@@ -42,50 +42,43 @@ defmodule Dash.Sparkline.ScenicComponent do
   def validate(params), do: {:ok, params}
 
   @impl Scenic.Scene
-  def init(scene, _params, _opts) do
+  def init(scene, params, _opts) do
     graph = Graph.build()
-
-    task =
-      Task.Supervisor.async_nolink(Dash.task_sup(), fn ->
-        {:update_sparkline, Dash.GhStats.run()}
-      end)
 
     state = %State{}
 
+    scene = GraphState.assign_and_push_graph(scene, state, graph)
+
+    # Draw the sparkline only if we have it
     scene =
-      GraphState.assign_and_push_graph(scene, state, graph)
-      |> assign(:task_ref, task.ref)
+      case params do
+        %{dash_sparkline: dash_sparkline} ->
+          GraphState.update_graph(scene, fn graph ->
+            graph
+            |> Redraw.draw(:sparkline, fn g -> render_sparkline(g, dash_sparkline, []) end)
+          end)
+
+        _ ->
+          scene
+      end
 
     {:ok, scene}
   end
 
-  @impl GenServer
-  def handle_info({task_ref, {:update_sparkline, rows}}, scene)
-      when task_ref == scene.assigns.task_ref do
-    data =
-      Enum.map(rows, fn row -> row.num_prs_open end)
-      |> Enum.chunk_every(1, 60)
-      |> List.flatten()
-
-    sparkline = Contex.Sparkline.new(data)
-    dash_sparkline = Dash.Sparkline.parse(sparkline)
+  @impl Scenic.Scene
+  def handle_update(params, _opts, scene) do
+    %{dash_sparkline: dash_sparkline} = params
 
     scene =
       GraphState.update_graph(scene, fn graph ->
         graph
         |> Redraw.draw(:sparkline, fn g -> render_sparkline(g, dash_sparkline, []) end)
       end)
-      |> assign(:task_ref, nil)
-
-    Process.demonitor(task_ref, [:flush])
 
     {:noreply, scene}
   end
 
-  def handle_info({:DOWN, _ref, :process, _pid, _reason}, scene) do
-    {:noreply, scene}
-  end
-
+  @impl GenServer
   def handle_info(msg, scene) do
     Logger.warn("Unhandled message: #{inspect(msg)}")
     {:noreply, scene}
