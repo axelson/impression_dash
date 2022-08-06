@@ -9,7 +9,7 @@ defmodule Dash.MixProject do
       build_embedded: true,
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
     ]
   end
 
@@ -23,7 +23,7 @@ defmodule Dash.MixProject do
   def application do
     [
       mod: {DashApplication, []},
-      extra_applications: [:crypto]
+      extra_applications: [:crypto],
     ]
   end
 
@@ -39,6 +39,7 @@ defmodule Dash.MixProject do
       {:dotenv_parser, "~> 2.0", only: :dev},
       {:ecto_sqlite3, "~> 0.7"},
       {:exsync, path: "~/dev/forks/exsync", override: true, only: :dev},
+      {:freedom_formatter, "~> 2.0"},
       {:nimble_csv, "~> 1.2"},
       {:nimble_parsec, "~> 1.2"},
       {:phoenix_pubsub, "~> 2.1"},
@@ -48,7 +49,7 @@ defmodule Dash.MixProject do
        github: "axelson/scenic_live_reload", branch: "wip-v0.11", only: :dev},
       # {:scenic_widget_contrib, path: "~/dev/forks/scenic-widget-contrib"},
       {:scenic_widget_contrib, github: "axelson/scenic-widget-contrib", branch: "draw-utils"},
-      {:typed_struct, "~> 0.3.0"}
+      {:typed_struct, "~> 0.3.0"},
     ]
   end
 end

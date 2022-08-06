@@ -16,14 +16,14 @@ defmodule Dash.Scene.Home do
     num_outstanding_review_requests: 80,
     num_prs_approved_not_merged: 9,
     num_prs_needs_review: 11,
-    num_prs_open: 40
+    num_prs_open: 40,
   }
 
   @sparklines [
                 {:num_outstanding_review_requests, "Review Requests"},
                 {:num_prs_approved_not_merged, "Approved !Merged"},
                 {:num_prs_needs_review, "Needs Review"},
-                {:num_prs_open, "Open"}
+                {:num_prs_open, "Open"},
               ]
               |> Enum.map(fn {id, label} ->
                 label_id = "sparkline_label_#{id}" |> String.to_atom()
@@ -33,7 +33,7 @@ defmodule Dash.Scene.Home do
                   id: id,
                   sparkline_id: sparkline_id,
                   label: label,
-                  label_id: label_id
+                  label_id: label_id,
                 }
               end)
 
@@ -64,7 +64,8 @@ defmodule Dash.Scene.Home do
         {%{sparkline_id: sparkline_id, label: label, label_id: label_id}, i}, graph ->
           graph
           |> Redraw2.draw(label_id, fn _g ->
-            {Primitive.Text, label, t: {90, sparkline_y.(i) + 15}, font_size: 10, text_align: :right}
+            {Primitive.Text, label,
+             t: {90, sparkline_y.(i) + 15}, font_size: 10, text_align: :right}
           end)
           |> Redraw2.draw(sparkline_id, fn _g ->
             {Dash.Sparkline.ScenicComponent, %{}, t: {95, sparkline_y.(i)}}

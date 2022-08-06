@@ -115,7 +115,7 @@ defmodule Dash.SvgPathParser do
       rel_vertical_line,
       abs_horizontal_line,
       rel_horizontal_line,
-      close_path
+      close_path,
     ])
     |> label("command")
 

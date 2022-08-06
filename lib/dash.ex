@@ -105,6 +105,7 @@ defmodule Dash do
 
   def demo_web_color_parse do
     color = "rgba(0, 200, 50, 0.2)"
+
     Dash.WebColorParser.raw_parse(color)
     |> IO.inspect(label: "web_color_parse (dash.ex:107)")
   end

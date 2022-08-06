@@ -48,7 +48,7 @@ defmodule Dash.Sparkline do
       length: length(sparkline.data),
       width: sparkline.width,
       height: sparkline.height,
-      line_width: sparkline.line_width
+      line_width: sparkline.line_width,
     }
   end
 
@@ -76,7 +76,7 @@ defmodule Dash.Sparkline do
           true -> "#{x} #{value} L "
           _ -> "#{x} #{value}"
         end
-      end)
+      end),
     ]
   end
 

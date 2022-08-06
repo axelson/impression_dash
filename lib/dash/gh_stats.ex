@@ -26,9 +26,9 @@ defmodule Dash.GhStats do
           "num_prs_approved_not_merged",
           "num_prs_open",
           "num_outstanding_review_requests",
-          "inserted_at"
+          "inserted_at",
         ]
-        | rest
+        | rest,
       ] ->
         # This makes me really want to create a nice CSV parser...
         Enum.map(rest, fn raw_row ->
@@ -37,7 +37,7 @@ defmodule Dash.GhStats do
             num_prs_approved_not_merged: String.to_integer(Enum.at(raw_row, 1)),
             num_prs_open: String.to_integer(Enum.at(raw_row, 2)),
             num_outstanding_review_requests: String.to_integer(Enum.at(raw_row, 3)),
-            inserted_at: NaiveDateTime.from_iso8601!(Enum.at(raw_row, 4))
+            inserted_at: NaiveDateTime.from_iso8601!(Enum.at(raw_row, 4)),
           }
         end)
     end

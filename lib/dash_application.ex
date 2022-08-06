@@ -10,7 +10,7 @@ defmodule DashApplication do
       Dash.Repo,
       {Phoenix.PubSub, name: Dash.pub_sub()},
       {Task.Supervisor, name: Dash.task_sup()},
-      {Scenic, [main_viewport_config]}
+      {Scenic, [main_viewport_config]},
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one)

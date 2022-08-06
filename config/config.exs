@@ -25,8 +25,8 @@ config :dash, :viewport,
       module: Scenic.Driver.Local,
       name: :local,
       window: [resizeable: false, title: "dash"],
-      on_close: :stop_system
-    ]
+      on_close: :stop_system,
+    ],
   ]
 
 case Mix.env() do
