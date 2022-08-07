@@ -44,6 +44,7 @@ defmodule Dash.Scene.Home do
 
   @impl Scenic.Scene
   def init(scene, _params, _opts) do
+    Process.register(self(), __MODULE__)
     :ok = Phoenix.PubSub.subscribe(Dash.pub_sub(), Dash.topic())
 
     sparkline_base = 10
@@ -99,13 +100,22 @@ defmodule Dash.Scene.Home do
     {:noreply, scene}
   end
 
+  def handle_info(:update_stats, scene) do
+    scene = fetch_gh_stats(scene)
+    {:noreply, scene}
+  end
+
   def handle_info({task_ref, {:task, task_result}}, scene) do
+    Logger.info("task_result: #{inspect(task_result, pretty: true)}")
+
     scene =
       case {scene.assigns.state, task_result} do
         {%State{gh_stats_task_ref: ^task_ref}, {:fetch_gh_stats, rows}} ->
           Process.demonitor(task_ref, [:flush])
 
-          GraphState.update_graph(scene, fn graph ->
+          scene
+          |> GraphState.update_state(fn state -> %State{state | gh_stats_task_ref: nil} end)
+          |> GraphState.update_graph(fn graph ->
             Enum.reduce(@sparklines, graph, fn %{id: id, sparkline_id: sparkline_id}, graph ->
               graph
               |> Redraw2.draw(sparkline_id, fn _g ->
@@ -114,7 +124,6 @@ defmodule Dash.Scene.Home do
               end)
             end)
           end)
-          |> assign(:task_ref, nil)
 
         _ ->
           Logger.warn("Unrecognized task ref: #{inspect(task_ref)}")
@@ -145,6 +154,8 @@ defmodule Dash.Scene.Home do
   end
 
   defp fetch_gh_stats(scene) do
+    Logger.info("Fetching gh_stats")
+
     task =
       Task.Supervisor.async_nolink(Dash.task_sup(), fn ->
         {:task, {:fetch_gh_stats, Dash.GhStats.run()}}
