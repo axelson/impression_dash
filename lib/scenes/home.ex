@@ -1,10 +1,11 @@
 defmodule Dash.Scene.Home do
   use Scenic.Scene
   require Logger
+  import Scenic.Primitives
 
   alias Scenic.Graph
   alias Scenic.Primitive
-  alias ScenicWidgets.Redraw2
+  alias ScenicWidgets.GraphTools
   alias ScenicWidgets.GraphState
 
   @default_text_size 27
@@ -48,36 +49,40 @@ defmodule Dash.Scene.Home do
     :ok = Phoenix.PubSub.subscribe(Dash.pub_sub(), Dash.topic())
 
     sparkline_base = 10
-    sparkline_spacing = 40
+    sparkline_spacing = 50
     sparkline_y = fn i -> sparkline_base + sparkline_spacing * i end
 
     graph =
       Graph.build(font: :roboto, font_size: @default_text_size, fill: :black)
-      |> Redraw2.draw(:bg, fn g ->
+      |> GraphTools.upsert(:bg, fn g ->
         render_background(g, scene.viewport, :white)
       end)
-      |> Redraw2.draw(:quote, fn g ->
-        render_text2(g, scene.viewport, @default_quote)
+      |> GraphTools.upsert(:quote, fn g ->
+        render_text(g, scene.viewport, @default_quote)
       end)
 
     graph =
       Enum.reduce(Enum.with_index(@sparklines), graph, fn
         {%{sparkline_id: sparkline_id, label: label, label_id: label_id}, i}, graph ->
           graph
-          |> Redraw2.draw(label_id, fn _g ->
-            {Primitive.Text, label,
-             t: {90, sparkline_y.(i) + 15}, font_size: 10, text_align: :right}
+          |> GraphTools.upsert(label_id, fn g ->
+            text(g, label, t: {90, sparkline_y.(i) + 15}, font_size: 10, text_align: :right)
           end)
-          |> Redraw2.draw(sparkline_id, fn _g ->
-            {Dash.Sparkline.ScenicComponent, %{}, t: {95, sparkline_y.(i)}}
+          |> GraphTools.upsert(sparkline_id, fn g ->
+            Dash.Sparkline.ScenicComponent.upsert(g, %{}, t: {95, sparkline_y.(i)})
+            # {Dash.Sparkline.ScenicComponent, %{}, t: {95, sparkline_y.(i)}}
           end)
       end)
 
     state = %State{}
-    scene = GraphState.assign_and_push_graph(scene, state, graph)
+
+    scene =
+      scene
+      # |> fetch_gh_stats(scene)
+      |> GraphState.assign_and_push_graph(state, graph)
 
     # WARN: This is a bit crappy because it'll cause the Inky Impression to redraw! Maybe it's reasonable though
-    scene = fetch_gh_stats(scene)
+    scene = async_fetch_gh_stats(scene)
 
     {:ok, scene}
   end
@@ -93,24 +98,25 @@ defmodule Dash.Scene.Home do
     scene =
       GraphState.update_graph(scene, fn graph ->
         graph
-        |> Redraw2.draw(:bg, fn g -> render_background(g, scene.viewport, bg_color) end)
-        |> Redraw2.draw(:quote, fn g -> render_text2(g, scene.viewport, text) end)
+        |> GraphTools.upsert(:bg, fn g -> render_background(g, scene.viewport, bg_color) end)
+        |> GraphTools.upsert(:quote, fn g -> render_text(g, scene.viewport, text) end)
       end)
 
     {:noreply, scene}
   end
 
   def handle_info(:update_stats, scene) do
-    scene = fetch_gh_stats(scene)
+    scene = async_fetch_gh_stats(scene)
     {:noreply, scene}
   end
 
   def handle_info({task_ref, {:task, task_result}}, scene) do
-    Logger.info("task_result: #{inspect(task_result, pretty: true)}")
+    # Logger.debug("task_result: #{inspect(task_result, pretty: true)}")
 
     scene =
       case {scene.assigns.state, task_result} do
         {%State{gh_stats_task_ref: ^task_ref}, {:fetch_gh_stats, rows}} ->
+          Logger.info("Redrawing with new stats")
           Process.demonitor(task_ref, [:flush])
 
           scene
@@ -118,9 +124,9 @@ defmodule Dash.Scene.Home do
           |> GraphState.update_graph(fn graph ->
             Enum.reduce(@sparklines, graph, fn %{id: id, sparkline_id: sparkline_id}, graph ->
               graph
-              |> Redraw2.draw(sparkline_id, fn _g ->
+              |> GraphTools.upsert(sparkline_id, fn g ->
                 sparkline = prepare_data(rows, id)
-                {Dash.Sparkline.ScenicComponent, %{dash_sparkline: sparkline}, []}
+                Dash.Sparkline.ScenicComponent.upsert(g, %{dash_sparkline: sparkline}, [])
               end)
             end)
           end)
@@ -138,22 +144,25 @@ defmodule Dash.Scene.Home do
     {:noreply, scene}
   end
 
-  defp render_text2(_graph, viewport, text) when is_binary(text) do
+  defp render_text(graph, viewport, text) when is_binary(text) do
     {width, _height} = viewport.size
     max_width = width * 3 / 4
     wrapped = FontMetrics.wrap(text, max_width, @default_text_size, @font_metrics)
 
-    {Primitive.Text, wrapped,
-     id: :quote, translate: {width / 2, 220}, text_align: :center, fill: :black}
+    text(graph, wrapped,
+      translate: {width / 2, 220},
+      text_align: :center,
+      fill: :black
+    )
   end
 
-  defp render_background(_graph, viewport, bg_color) do
+  defp render_background(g, viewport, bg_color) do
     {width, height} = viewport.size
 
-    {Primitive.Rectangle, {width, height}, fill: bg_color}
+    rect(g, {width, height}, fill: bg_color)
   end
 
-  defp fetch_gh_stats(scene) do
+  defp async_fetch_gh_stats(scene) do
     Logger.info("Fetching gh_stats")
 
     task =
@@ -172,7 +181,14 @@ defmodule Dash.Scene.Home do
       |> Enum.chunk_every(1, 60)
       |> List.flatten()
 
-    sparkline = Contex.Sparkline.new(data)
+    sparkline =
+      Contex.Sparkline.new(data)
+      |> Contex.Sparkline.colours("rgba(255, 0, 0, 1)", "rgba(255, 0, 0, 1)")
+
+    # |> Contex.Sparkline.
+
+    Logger.info("prep sparkline")
+
     Dash.Sparkline.parse(sparkline)
   end
 end

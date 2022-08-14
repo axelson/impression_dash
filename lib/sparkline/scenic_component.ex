@@ -10,7 +10,7 @@ defmodule Dash.Sparkline.ScenicComponent do
   require Logger
   alias Scenic.Graph
   alias ScenicWidgets.GraphState
-  alias ScenicWidgets.Redraw
+  alias ScenicWidgets.GraphTools
 
   @alpha_scale Dash.Scale.new_continuous(domain: {0, 1}, range: {0, 255})
 
@@ -55,7 +55,7 @@ defmodule Dash.Sparkline.ScenicComponent do
         %{dash_sparkline: dash_sparkline} ->
           GraphState.update_graph(scene, fn graph ->
             graph
-            |> Redraw.draw(:sparkline, fn g -> render_sparkline(g, dash_sparkline, []) end)
+            |> GraphTools.upsert(:sparkline, fn g -> render_sparkline(g, dash_sparkline, []) end)
           end)
 
         _ ->
@@ -65,6 +65,41 @@ defmodule Dash.Sparkline.ScenicComponent do
     {:ok, scene}
   end
 
+  def upsert(graph_or_primitive, data, opts) do
+    case graph_or_primitive do
+      %Scenic.Graph{} = graph -> add_to_graph(graph, data, opts)
+      %Scenic.Primitive{} = primitive -> modify(primitive, data, opts)
+    end
+  end
+
+  # Copied from Scenic:
+  # https://github.com/boydm/scenic/blob/94679b1ab50834e20b94ca11bc0c5645bf0c909e/lib/scenic/components.ex#L696
+  defp modify(
+         %Scenic.Primitive{module: Scenic.Primitive.Component, data: {mod, _, id}} = p,
+         data,
+         options
+       ) do
+    data =
+      case mod.validate(data) do
+        {:ok, data} -> data
+        {:error, msg} -> raise msg
+      end
+
+    Scenic.Primitive.put(p, {mod, data, id}, options)
+  end
+
+  # Copied from Scenic:
+  # https://github.com/boydm/scenic/blob/9314020b2962e38bea871e8e1f59cd273dfe0af0/lib/scenic/primitives.ex#L1467
+  defp modify(%Scenic.Primitive{module: mod} = p, data, opts) do
+    data =
+      case mod.validate(data) do
+        {:ok, data} -> data
+        {:error, error} -> raise Exception.message(error)
+      end
+
+    Scenic.Primitive.put(p, data, opts)
+  end
+
   @impl Scenic.Scene
   def handle_update(params, _opts, scene) do
     %{dash_sparkline: dash_sparkline} = params
@@ -72,7 +107,7 @@ defmodule Dash.Sparkline.ScenicComponent do
     scene =
       GraphState.update_graph(scene, fn graph ->
         graph
-        |> Redraw.draw(:sparkline, fn g -> render_sparkline(g, dash_sparkline, []) end)
+        |> GraphTools.upsert(:sparkline, fn g -> render_sparkline(g, dash_sparkline, []) end)
       end)
 
     {:noreply, scene}
@@ -104,20 +139,23 @@ defmodule Dash.Sparkline.ScenicComponent do
     line_color = scenic_color(dash_sparkline.line_color)
 
     graph
-    |> group(fn g ->
-      g
-      |> path(to_scenic_path(dash_sparkline.open_path, dash_sparkline),
-        stroke: {dash_sparkline.line_width, line_color},
-        miter_limit: 3,
-        join: :round,
-        scale: scale,
-        scissor: {dash_sparkline.width, dash_sparkline.height}
-      )
-      |> path(to_scenic_path(dash_sparkline.closed_path, dash_sparkline),
-        fill: fill_color,
-        scale: scale
-      )
-    end)
+    |> group(
+      fn g ->
+        g
+        |> path(to_scenic_path(dash_sparkline.open_path, dash_sparkline),
+          stroke: {dash_sparkline.line_width, line_color},
+          miter_limit: 3,
+          join: :round,
+          scale: scale,
+          scissor: {dash_sparkline.width, dash_sparkline.height}
+        )
+        |> path(to_scenic_path(dash_sparkline.closed_path, dash_sparkline),
+          fill: fill_color,
+          scale: scale
+        )
+      end,
+      id: :sparkline
+    )
   end
 
   def to_scenic_path(commands, _dash_sparkline) do
