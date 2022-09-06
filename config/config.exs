@@ -33,7 +33,7 @@ case Mix.env() do
   :dev ->
     config :exsync,
       reload_timeout: 150,
-      reload_callback: {ScenicLiveReload, :reload_current_scene, []}
+      reload_callback: {ScenicLiveReload, :reload_current_scenes, []}
 
   _ ->
     nil
