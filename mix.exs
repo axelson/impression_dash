@@ -46,7 +46,8 @@ defmodule Dash.MixProject do
       {:req, "~> 0.3.0"},
       {:scenic, "~> 0.11"},
       {:scenic_live_reload, "~> 0.3.0", only: :dev},
-      {:scenic_widget_contrib, path: "~/dev/forks/scenic-widget-contrib"},
+      # {:scenic_widget_contrib, path: "~/dev/forks/scenic-widget-contrib"},
+      {:scenic_widget_contrib, github: "axelson/scenic-widget-contrib", branch: "jax"},
       # {:scenic_widget_contrib, github: "axelson/scenic-widget-contrib", branch: "draw-utils"},
       {:typed_struct, "~> 0.3.0"},
     ]

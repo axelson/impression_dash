@@ -16,6 +16,10 @@ defmodule Dash do
     Phoenix.PubSub.broadcast(pub_sub(), topic(), {:set_quote, text, bg_color})
   end
 
+  def update_stats do
+    send(Dash.Scene.Home, :update_stats)
+  end
+
   def switch_scene(scene_id) do
     {:ok, view_port} = Scenic.ViewPort.info(:main_viewport)
     {scene, params} = scene_definition(scene_id)

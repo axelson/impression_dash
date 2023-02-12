@@ -4,9 +4,8 @@ defmodule Dash.Scene.Home do
   import Scenic.Primitives
 
   alias Scenic.Graph
-  alias Scenic.Primitive
   alias ScenicWidgets.GraphTools
-  alias ScenicWidgets.GraphState
+  alias ScenicContrib.Utils.GraphState
 
   @default_text_size 27
   @font_metrics Dash.roboto_font_metrics()

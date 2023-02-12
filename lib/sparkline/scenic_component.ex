@@ -5,11 +5,12 @@ defmodule Dash.Sparkline.ScenicComponent do
   Notes are from: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d
   """
   use Scenic.Component
+  use ScenicWidgets.GraphTools.Upsertable
   use TypedStruct
   import Scenic.Primitives
   require Logger
   alias Scenic.Graph
-  alias ScenicWidgets.GraphState
+  alias ScenicContrib.Utils.GraphState
   alias ScenicWidgets.GraphTools
 
   @alpha_scale Dash.Scale.new_continuous(domain: {0, 1}, range: {0, 255})
