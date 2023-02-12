@@ -8,7 +8,6 @@ defmodule Dash.Scene.Home do
   alias ScenicContrib.Utils.GraphState
 
   @default_text_size 27
-  @font_metrics Dash.roboto_font_metrics()
   @default_quote "Inky Impression"
 
   %Dash.GhStats.Row{
@@ -146,7 +145,7 @@ defmodule Dash.Scene.Home do
   defp render_text(graph, viewport, text) when is_binary(text) do
     {width, _height} = viewport.size
     max_width = width * 3 / 4
-    wrapped = FontMetrics.wrap(text, max_width, @default_text_size, @font_metrics)
+    wrapped = FontMetrics.wrap(text, max_width, @default_text_size, font_metrics())
 
     text(graph, wrapped,
       translate: {width / 2, 220},
@@ -189,5 +188,9 @@ defmodule Dash.Scene.Home do
     Logger.info("prep sparkline")
 
     Dash.Sparkline.parse(sparkline)
+  end
+
+  defp font_metrics do
+    Dash.roboto_font_metrics()
   end
 end
