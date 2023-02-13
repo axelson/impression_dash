@@ -3,7 +3,7 @@ defmodule Dash.Assets do
     otp_app: :dash,
     sources: [
       "assets",
-      {:scenic, "deps/scenic/assets"}
+      {:scenic, "deps/scenic/assets"},
     ]
 
   def asset_path, do: Path.join([__DIR__, "..", "..", "assets"]) |> Path.expand()
