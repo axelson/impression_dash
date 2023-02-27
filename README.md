@@ -26,3 +26,10 @@ UI is currently very basic and looks like:
 And this is what it looks like on the actual device:
 
 ![Image](image.jpg "Photo of the app running on an actual device")
+
+## Attributions
+
+CSS Color Names from:
+https://github.com/bahamas10/css-color-names/blob/master/css-color-names.json
+
+Weather icons from: https://www.flaticon.com/free-icons/weather

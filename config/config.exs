@@ -1,5 +1,8 @@
 import Config
 
+# It's a little weird to set mix_env like this
+config :mahaul, mix_env: Mix.env()
+
 config :dash, Dash.Repo,
   database: "priv/dash_database.db",
   migration_primary_key: [type: :binary_id],
