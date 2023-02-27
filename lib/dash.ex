@@ -106,7 +106,12 @@ defmodule Dash do
   def demo do
     api_key = Dash.Env.pirate_weather_api_key()
     honolulu = "21.306944,-157.858333"
-    res = Req.get!("https://api.pirateweather.net/forecast/#{api_key}/#{honolulu}?exclude=alerts,minutely,hourly,daily")
+
+    res =
+      Req.get!(
+        "https://api.pirateweather.net/forecast/#{api_key}/#{honolulu}?exclude=alerts,minutely,hourly,daily"
+      )
+
     Dash.Weather.parse_result(res.body)
   end
 

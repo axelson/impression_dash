@@ -1,19 +1,24 @@
 defmodule Dash.Weather do
-  # def request(%Dash.Location{latlon: _latlon}) do
-  #   Process.sleep(500)
+  def request(%Dash.Location{latlon: _latlon}) do
+    Process.sleep(500)
 
-  #   %Dash.WeatherResult{
-  #     temperature: 72.39,
-  #     summary: "Windy",
-  #     icon: "wind",
-  #     humidity: 0.75,
-  #     feel_like_temperature: 82.96
-  #   }
-  # end
+    %Dash.WeatherResult{
+      temperature: 72.39,
+      summary: "Windy",
+      icon: "wind",
+      humidity: 0.75,
+      feel_like_temperature: 82.96,
+    }
+  end
 
   def request(%Dash.Location{latlon: latlon}) do
     api_key = Dash.Env.pirate_weather_api_key()
-    res = Req.get!("https://api.pirateweather.net/forecast/#{api_key}/#{latlon}?exclude=alerts,minutely,hourly,daily")
+
+    res =
+      Req.get!(
+        "https://api.pirateweather.net/forecast/#{api_key}/#{latlon}?exclude=alerts,minutely,hourly,daily"
+      )
+
     Dash.Weather.parse_result(res.body)
   end
 
@@ -26,7 +31,7 @@ defmodule Dash.Weather do
       humidity: cur["humidity"],
       icon: cur["icon"],
       summary: cur["summary"],
-      temperature: cur["temperature"]
+      temperature: cur["temperature"],
     }
   end
 

@@ -31,6 +31,9 @@ defmodule Dash.WeatherResult.ScenicComponent do
       GraphState.update_graph(scene, fn graph ->
         graph
         |> GraphTools.upsert(:name, fn g -> text(g, location.name, fill: :black) end)
+        |> GraphTools.upsert(:location_name, fn g ->
+          text(g, location.location_name, fill: :black, t: {0, 20}, font_size: 14)
+        end)
       end)
 
     self = self()
