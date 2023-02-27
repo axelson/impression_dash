@@ -104,7 +104,10 @@ defmodule Dash do
   defp trello_token, do: Application.fetch_env!(:dash, :trello_api_token)
 
   def demo do
-    demo_web_color_parse()
+    api_key = Dash.Env.pirate_weather_api_key()
+    honolulu = "21.306944,-157.858333"
+    res = Req.get!("https://api.pirateweather.net/forecast/#{api_key}/#{honolulu}?exclude=alerts,minutely,hourly,daily")
+    Dash.Weather.parse_result(res.body)
   end
 
   def demo_web_color_parse do
