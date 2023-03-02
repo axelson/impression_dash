@@ -1,15 +1,15 @@
 defmodule Dash.Weather do
-  def request(%Dash.Location{latlon: _latlon}) do
-    Process.sleep(500)
+  # def request(%Dash.Location{latlon: _latlon}) do
+  #   Process.sleep(500)
 
-    %Dash.WeatherResult{
-      temperature: 72.39,
-      summary: "Windy",
-      icon: "wind",
-      humidity: 0.75,
-      feel_like_temperature: 82.96,
-    }
-  end
+  #   %Dash.WeatherResult{
+  #     temperature: 72.39,
+  #     summary: "Windy",
+  #     icon: "wind",
+  #     humidity: 0.75,
+  #     feel_like_temperature: 82.96,
+  #   }
+  # end
 
   def request(%Dash.Location{latlon: latlon}) do
     api_key = Dash.Env.pirate_weather_api_key()
@@ -26,13 +26,14 @@ defmodule Dash.Weather do
   def parse_result(result) do
     cur = result["currently"]
 
-    %Dash.WeatherResult{
-      feel_like_temperature: cur["apparentTemperature"],
-      humidity: cur["humidity"],
-      icon: cur["icon"],
-      summary: cur["summary"],
-      temperature: cur["temperature"],
-    }
+    {:ok,
+     %Dash.WeatherResult{
+       feel_like_temperature: cur["apparentTemperature"],
+       humidity: cur["humidity"],
+       icon: cur["icon"],
+       summary: cur["summary"],
+       temperature: cur["temperature"],
+     }}
   end
 
   def weather_icon(dark_sky_icon) do

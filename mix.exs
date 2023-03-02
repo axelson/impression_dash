@@ -34,7 +34,8 @@ defmodule Dash.MixProject do
       {:scenic_driver_local, "~> 0.11.0-beta.0", targets: :host},
 
       # Other deps
-      {:mahaul, "~> 0.2.0"},
+      {:mahaul, "~> 0.3.0"},
+      # {:mahaul, path: "~/dev/forks/mahaul"},
       {:data_tracer, path: "~/dev/data_tracer", only: :dev},
       {:contex, path: "~/dev/forks/contex"},
       {:dotenv_parser, "~> 2.0", only: :dev},

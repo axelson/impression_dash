@@ -40,7 +40,10 @@ defmodule Dash.WeatherResult.ScenicComponent do
 
     # This is lazy, proper supervision would be better
     Task.start(fn ->
-      send(self, {:weather_result, Dash.Weather.request(location)})
+      case Dash.Weather.request(location) do
+        {:ok, weather_result} -> send(self, {:weather_result, weather_result})
+        error -> Logger.warn("Failed to retrieve weather: #{inspect(error)}")
+      end
     end)
 
     {:ok, scene}

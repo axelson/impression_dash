@@ -100,8 +100,8 @@ defmodule Dash do
     )
   end
 
-  defp trello_key, do: Application.fetch_env!(:dash, :trello_api_key)
-  defp trello_token, do: Application.fetch_env!(:dash, :trello_api_token)
+  defp trello_key, do: Dash.Env.trello_api_key()
+  defp trello_token, do: Dash.Env.trello_api_token()
 
   def demo do
     api_key = Dash.Env.pirate_weather_api_key()
