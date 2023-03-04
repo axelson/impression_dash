@@ -21,7 +21,7 @@ defmodule Dash.WeatherResult.ScenicComponent do
   @impl Scenic.Scene
   def init(scene, params, _opts) do
     graph = Graph.build()
-    %{location: location} = params
+    %{location: location, weather_result: weather_result} = params
 
     state = %State{location: location}
 
@@ -29,22 +29,40 @@ defmodule Dash.WeatherResult.ScenicComponent do
 
     scene =
       GraphState.update_graph(scene, fn graph ->
-        graph
-        |> GraphTools.upsert(:name, fn g -> text(g, location.name, fill: :black) end)
-        |> GraphTools.upsert(:location_name, fn g ->
-          text(g, location.location_name, fill: :black, t: {0, 20}, font_size: 14)
-        end)
+        graph =
+          graph
+          |> GraphTools.upsert(:name, fn g -> text(g, location.name, fill: :black) end)
+          |> GraphTools.upsert(:location_name, fn g ->
+            text(g, location.location_name, fill: :black, t: {0, 20}, font_size: 14)
+          end)
+
+        if weather_result do
+          graph
+          |> GraphTools.upsert(:summary, fn g ->
+            text(g, weather_result.summary, fill: :black, t: {150, 0})
+          end)
+          |> GraphTools.upsert(:temperature, fn g ->
+            text(g, to_string(weather_result.temperature), fill: :black, t: {150, 25})
+          end)
+        else
+          graph
+        end
       end)
 
     self = self()
 
     # This is lazy, proper supervision would be better
-    Task.start(fn ->
-      case Dash.Weather.request(location) do
-        {:ok, weather_result} -> send(self, {:weather_result, weather_result})
-        error -> Logger.warn("Failed to retrieve weather: #{inspect(error)}")
-      end
-    end)
+    # Task.start(fn ->
+    #   case Dash.Weather.Server.get_weather(location) do
+    #     {:ok, weather_result} -> send(self, {:weather_result, weather_result})
+    #     error -> Logger.warn("Failed to retrieve weather: #{inspect(error)}")
+    #   end
+
+    #   # case Dash.Weather.request(location) do
+    #   #   {:ok, weather_result} -> send(self, {:weather_result, weather_result})
+    #   #   error -> Logger.warn("Failed to retrieve weather: #{inspect(error)}")
+    #   # end
+    # end)
 
     {:ok, scene}
   end

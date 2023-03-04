@@ -50,9 +50,6 @@ defmodule Dash.Scene.Home do
     sparkline_spacing = 50
     sparkline_y = fn i -> sparkline_base + sparkline_spacing * i end
 
-    location = Dash.Locations.all() |> hd()
-    IO.inspect(location, label: "location (home.ex:54)")
-
     graph =
       Graph.build(font: :roboto, font_size: @default_text_size, fill: :black)
       |> GraphTools.upsert(:bg, fn g ->
@@ -61,9 +58,10 @@ defmodule Dash.Scene.Home do
       |> GraphTools.upsert(:quote, fn g ->
         render_text(g, scene.viewport, @default_quote)
       end)
-      #|> GraphTools.upsert(:honolulu, fn g ->
-      #  Dash.WeatherResult.ScenicComponent.upsert(g, %{location: location}, t: {15, 320})
-      #end)
+
+    # |> GraphTools.upsert(:honolulu, fn g ->
+    #  Dash.WeatherResult.ScenicComponent.upsert(g, %{location: location}, t: {15, 320})
+    # end)
 
     # |> GraphTools.upsert(:honolulu, fn g ->
     #   {width, _height} = scene.viewport.size
@@ -80,10 +78,7 @@ defmodule Dash.Scene.Home do
     graph =
       Enum.reduce(Enum.with_index(Dash.Locations.all()), graph, fn
         {location, i}, graph ->
-          graph
-          |> GraphTools.upsert(location.name, fn g ->
-            Dash.WeatherResult.ScenicComponent.upsert(g, %{location: location}, t: {15, 320 + i * 75})
-          end)
+          render_weather(graph, location, nil, {15, 260 + i * 75})
       end)
 
     graph =
@@ -108,6 +103,8 @@ defmodule Dash.Scene.Home do
 
     # WARN: This is a bit crappy because it'll cause the Inky Impression to redraw! Maybe it's reasonable though
     scene = async_fetch_gh_stats(scene)
+
+    schedule_weather_update(:timer.minutes(0))
 
     {:ok, scene}
   end
@@ -164,6 +161,27 @@ defmodule Dash.Scene.Home do
     {:noreply, scene}
   end
 
+  def handle_info(:update_weather, scene) do
+    scene =
+      scene
+      |> GraphState.update_graph(fn graph ->
+        Enum.reduce(Enum.with_index(Dash.Locations.all()), graph, fn
+          {location, i}, graph ->
+            case Dash.Weather.Server.get_weather(location) do
+              {:ok, weather_result} ->
+                render_weather(graph, location, weather_result, {15, 260 + i * 75})
+
+              error ->
+                graph
+            end
+        end)
+      end)
+
+    schedule_weather_update(:timer.minutes(1))
+
+    {:noreply, scene}
+  end
+
   def handle_info(msg, scene) do
     Logger.info("Unhandled hande_info: #{inspect(msg)}")
     {:noreply, scene}
@@ -179,6 +197,17 @@ defmodule Dash.Scene.Home do
       text_align: :center,
       fill: :black
     )
+  end
+
+  defp render_weather(graph, location, weather_result, transform) do
+    graph
+    |> GraphTools.upsert(location.name, fn g ->
+      Dash.WeatherResult.ScenicComponent.upsert(
+        g,
+        %{location: location, weather_result: weather_result},
+        t: transform
+      )
+    end)
   end
 
   defp render_background(g, viewport, bg_color) do
@@ -215,6 +244,10 @@ defmodule Dash.Scene.Home do
     Logger.info("prep sparkline")
 
     Dash.Sparkline.parse(sparkline)
+  end
+
+  defp schedule_weather_update(timeout) do
+    Process.send_after(self(), :update_weather, timeout)
   end
 
   defp font_metrics do
