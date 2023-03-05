@@ -53,6 +53,7 @@ defmodule Dash.Scene.Home do
       scene
       |> GraphState.update_graph(fn graph ->
         fetch_and_render_weather(graph, Dash.Locations.all())
+        |> render_time_text()
       end)
 
     {:noreply, scene}
