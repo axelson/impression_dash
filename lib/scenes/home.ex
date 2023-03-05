@@ -24,6 +24,7 @@ defmodule Dash.Scene.Home do
       |> GraphTools.upsert(:bg, fn g ->
         render_background(g, scene.viewport, :white)
       end)
+      |> render_time_text()
 
     graph = fetch_and_render_weather(graph, Dash.Locations.all())
 
@@ -33,7 +34,7 @@ defmodule Dash.Scene.Home do
       scene
       |> GraphState.assign_and_push_graph(state, graph)
 
-    schedule_weather_update(:timer.minutes(0))
+    PeriodicalScheduler.register_callback({self(), :update_weather})
 
     {:ok, scene}
   end
@@ -46,13 +47,13 @@ defmodule Dash.Scene.Home do
 
   @impl GenServer
   def handle_info(:update_weather, scene) do
+    Logger.info("Updating weather #{inspect(Time.utc_now())}")
+
     scene =
       scene
       |> GraphState.update_graph(fn graph ->
         fetch_and_render_weather(graph, Dash.Locations.all())
       end)
-
-    schedule_weather_update(:timer.minutes(1))
 
     {:noreply, scene}
   end
@@ -74,7 +75,7 @@ defmodule Dash.Scene.Home do
     |> Enum.with_index()
     |> Enum.reduce(graph, fn
       {{location, weather_result}, i}, graph ->
-        render_weather_component(graph, location, weather_result, {15, 260 + i * 75})
+        render_weather_component(graph, location, weather_result, {15, 30 + i * 75})
     end)
   end
 
@@ -95,11 +96,13 @@ defmodule Dash.Scene.Home do
     rect(g, {width, height}, fill: bg_color)
   end
 
-  defp schedule_weather_update(timeout) do
-    Process.send_after(self(), :update_weather, timeout)
-  end
+  defp render_time_text(g) do
+    now = DateTime.now!("Pacific/Honolulu")
+    time_str = Calendar.strftime(now, "%m/%d %H:%M")
 
-  defp font_metrics do
-    Dash.roboto_font_metrics()
+    g
+    |> GraphTools.upsert(:time, fn g ->
+      text(g, time_str, id: :time, t: {440, 430})
+    end)
   end
 end

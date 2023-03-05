@@ -8,6 +8,7 @@ defmodule DashApplication do
 
     children = [
       Dash.Repo,
+      PeriodicalScheduler,
       {Dash.Weather.Server, locations: Application.fetch_env!(:dash, :locations)},
       {Phoenix.PubSub, name: Dash.pub_sub()},
       {Task.Supervisor, name: Dash.task_sup()},

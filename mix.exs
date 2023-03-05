@@ -35,6 +35,7 @@ defmodule Dash.MixProject do
 
       # Other deps
       {:mahaul, "~> 0.3.0"},
+      {:zoneinfo, "~> 0.1.5"},
       # {:mahaul, path: "~/dev/forks/mahaul"},
       {:data_tracer, path: "~/dev/data_tracer", only: :dev},
       {:contex, path: "~/dev/forks/contex"},

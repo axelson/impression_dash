@@ -66,8 +66,7 @@ defmodule Dash.Weather.Server do
 
     state = %State{state | weather_results: weather_results}
 
-    # schedule_weather_update(:timer.minutes(10))
-    schedule_weather_update(:timer.minutes(1))
+    schedule_weather_update(:timer.minutes(10))
 
     {:noreply, state}
   end
