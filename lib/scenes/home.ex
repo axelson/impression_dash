@@ -25,11 +25,7 @@ defmodule Dash.Scene.Home do
         render_background(g, scene.viewport, :white)
       end)
 
-    graph =
-      Enum.reduce(Enum.with_index(Dash.Locations.all()), graph, fn
-        {location, i}, graph ->
-          render_weather_component(graph, location, nil, {15, 260 + i * 75})
-      end)
+    graph = fetch_and_render_weather(graph, Dash.Locations.all())
 
     state = %State{}
 
@@ -53,16 +49,7 @@ defmodule Dash.Scene.Home do
     scene =
       scene
       |> GraphState.update_graph(fn graph ->
-        Enum.reduce(Enum.with_index(Dash.Locations.all()), graph, fn
-          {location, i}, graph ->
-            case Dash.Weather.Server.get_weather(location) do
-              {:ok, weather_result} ->
-                render_weather_component(graph, location, weather_result, {15, 260 + i * 75})
-
-              error ->
-                graph
-            end
-        end)
+        fetch_and_render_weather(graph, Dash.Locations.all())
       end)
 
     schedule_weather_update(:timer.minutes(1))
@@ -75,16 +62,20 @@ defmodule Dash.Scene.Home do
     {:noreply, scene}
   end
 
-  defp render_text(graph, viewport, text) when is_binary(text) do
-    {width, _height} = viewport.size
-    max_width = width * 3 / 4
-    wrapped = FontMetrics.wrap(text, max_width, @default_text_size, font_metrics())
-
-    text(graph, wrapped,
-      translate: {width / 2, 220},
-      text_align: :center,
-      fill: :black
-    )
+  defp fetch_and_render_weather(graph, locations) do
+    locations
+    |> Enum.map(fn location ->
+      case Dash.Weather.Server.get_weather(location) do
+        {:ok, weather_result} -> {location, weather_result}
+        # Is this bad?
+        _ -> {location, nil}
+      end
+    end)
+    |> Enum.with_index()
+    |> Enum.reduce(graph, fn
+      {{location, weather_result}, i}, graph ->
+        render_weather_component(graph, location, weather_result, {15, 260 + i * 75})
+    end)
   end
 
   defp render_weather_component(graph, location, weather_result, transform) do
