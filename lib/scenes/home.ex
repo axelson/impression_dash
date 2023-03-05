@@ -28,7 +28,7 @@ defmodule Dash.Scene.Home do
     graph =
       Enum.reduce(Enum.with_index(Dash.Locations.all()), graph, fn
         {location, i}, graph ->
-          render_weather(graph, location, nil, {15, 260 + i * 75})
+          render_weather_component(graph, location, nil, {15, 260 + i * 75})
       end)
 
     state = %State{}
@@ -57,7 +57,7 @@ defmodule Dash.Scene.Home do
           {location, i}, graph ->
             case Dash.Weather.Server.get_weather(location) do
               {:ok, weather_result} ->
-                render_weather(graph, location, weather_result, {15, 260 + i * 75})
+                render_weather_component(graph, location, weather_result, {15, 260 + i * 75})
 
               error ->
                 graph
@@ -87,7 +87,7 @@ defmodule Dash.Scene.Home do
     )
   end
 
-  defp render_weather(graph, location, weather_result, transform) do
+  defp render_weather_component(graph, location, weather_result, transform) do
     graph
     |> GraphTools.upsert(location.name, fn g ->
       Dash.WeatherResult.ScenicComponent.upsert(
