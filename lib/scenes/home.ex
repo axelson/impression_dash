@@ -25,22 +25,6 @@ defmodule Dash.Scene.Home do
         render_background(g, scene.viewport, :white)
       end)
 
-    # |> GraphTools.upsert(:honolulu, fn g ->
-    #  Dash.WeatherResult.ScenicComponent.upsert(g, %{location: location}, t: {15, 320})
-    # end)
-
-    # |> GraphTools.upsert(:honolulu, fn g ->
-    #   {width, _height} = scene.viewport.size
-    #   max_width = width * 3 / 4
-    #   wrapped = FontMetrics.wrap("Honolulu", max_width, @default_text_size, font_metrics())
-
-    #   text(g, wrapped,
-    #     translate: {15, 320},
-    #     text_align: :left,
-    #     fill: :black
-    #   )
-    # end)
-
     graph =
       Enum.reduce(Enum.with_index(Dash.Locations.all()), graph, fn
         {location, i}, graph ->
