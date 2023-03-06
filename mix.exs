@@ -9,6 +9,7 @@ defmodule Dash.MixProject do
       build_embedded: true,
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
+      preferred_cli_target: [run: :host, test: :host, "phx.server": :host],
       deps: deps(),
     ]
   end
@@ -36,6 +37,8 @@ defmodule Dash.MixProject do
       # Other deps
       {:mahaul, "~> 0.3.0"},
       {:zoneinfo, "~> 0.1.5"},
+      # A tiny bit weird to rely on this for hosts
+      {:vintage_net, "~> 0.13.0"},
       # {:mahaul, path: "~/dev/forks/mahaul"},
       {:data_tracer, path: "~/dev/data_tracer", only: :dev},
       {:contex, path: "~/dev/forks/contex"},

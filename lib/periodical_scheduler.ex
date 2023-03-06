@@ -4,6 +4,7 @@ defmodule PeriodicalScheduler do
   """
   use GenServer
   require Logger
+  @timeout 15000
 
   defmodule State do
     defstruct [:callbacks]
@@ -20,7 +21,24 @@ defmodule PeriodicalScheduler do
   @impl GenServer
   def init(_) do
     state = %State{callbacks: []}
+
+    if Application.fetch_env!(:dash, :wait_for_network) do
+      result = VintageNet.subscribe(["interface", :_, "connection"])
+      Logger.info("VintageNet subscribe: #{inspect(result)}")
+
+      # PeriodicalScheduler unhandled msg: {VintageNet, ["interface", "wlan0", "connection"], :lan, :internet,
+
+      receive do
+        {VintageNet, ["interface", _, "connection"], :lan, :internet, _data} = msg ->
+          Logger.info("Probably connected!!! #{inspect msg}")
+      after
+        @timeout ->
+          Logger.info("No connection within #{@timeout} ms")
+      end
+    end
+
     schedule_work()
+
     {:ok, state}
   end
 
@@ -32,12 +50,18 @@ defmodule PeriodicalScheduler do
 
   @impl GenServer
   def handle_info(:tick, state) do
-    Logger.info("tick! #{inspect Time.utc_now()}")
+    Logger.info("tick! #{inspect(Time.utc_now())}")
 
     Enum.each(state.callbacks, fn {dest, msg} ->
       send(dest, msg)
     end)
 
+
+    {:noreply, state}
+  end
+
+  def handle_info(msg, state) do
+    Logger.info("PeriodicalScheduler unhandled msg: #{inspect(msg, pretty: true)}")
     {:noreply, state}
   end
 

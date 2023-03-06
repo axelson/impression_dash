@@ -5,6 +5,12 @@ config :mahaul, mix_env: Mix.env()
 
 config :elixir, time_zone_database: Zoneinfo.TimeZoneDatabase
 
+config :vintage_net,
+  resolvconf: "/dev/null",
+  persistence: VintageNet.Persistence.Null
+
+config :dash, wait_for_network: false
+
 config :dash, Dash.Repo,
   database: "priv/dash_database.db",
   migration_primary_key: [type: :binary_id],
