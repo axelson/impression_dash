@@ -56,6 +56,7 @@ defmodule PeriodicalScheduler do
       send(dest, msg)
     end)
 
+    schedule_work()
 
     {:noreply, state}
   end
