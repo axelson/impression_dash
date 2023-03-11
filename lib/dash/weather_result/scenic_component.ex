@@ -42,7 +42,8 @@ defmodule Dash.WeatherResult.ScenicComponent do
             text(g, weather_result.summary, fill: :black, t: {150, 0})
           end)
           |> GraphTools.upsert(:temperature, fn g ->
-            text(g, to_string(weather_result.temperature), fill: :black, t: {150, 25})
+            temperature_str = "#{round weather_result.temperature}°"
+            text(g, to_string(temperature_str), fill: :black, t: {150, 25})
           end)
         else
           graph
