@@ -34,8 +34,6 @@ defmodule Dash.Scene.Home do
       scene
       |> GraphState.assign_and_push_graph(state, graph)
 
-    PeriodicalScheduler.register_callback({self(), :update_weather})
-
     {:ok, scene}
   end
 
@@ -46,8 +44,8 @@ defmodule Dash.Scene.Home do
   end
 
   @impl GenServer
-  def handle_info(:update_weather, scene) do
-    Logger.info("Updating weather #{inspect(Time.utc_now())}")
+  def handle_info({:updated_weather_results, _weather_results}, scene) do
+    Logger.info("Updating weather!")
 
     scene =
       scene
@@ -60,7 +58,7 @@ defmodule Dash.Scene.Home do
   end
 
   def handle_info(msg, scene) do
-    Logger.info("Unhandled hande_info: #{inspect(msg)}")
+    Logger.info("Unhandled handle_info: #{inspect(msg)}")
     {:noreply, scene}
   end
 
@@ -98,7 +96,11 @@ defmodule Dash.Scene.Home do
   end
 
   defp render_time_text(g) do
-    now = DateTime.now!("Pacific/Honolulu")
+    now =
+      DateTime.now!("Pacific/Honolulu")
+      # The display takes about 30 seconds to fully refresh so adjust the rendered time to match
+      |> DateTime.add(30, :second)
+
     time_str = Calendar.strftime(now, "%m/%d %H:%M")
 
     g

@@ -20,6 +20,10 @@ defmodule Dash.Weather.Server do
     GenServer.call(__MODULE__, {:get_weather, location})
   end
 
+  def broadcast() do
+    GenServer.call(__MODULE__, :broadcast)
+  end
+
   def init(opts \\ []) do
     locations = Keyword.get(opts, :locations, [])
 
@@ -28,7 +32,8 @@ defmodule Dash.Weather.Server do
       weather_results: %{},
     }
 
-    schedule_weather_update(0)
+    PeriodicalScheduler.register_callback({self(), :update_weather})
+    send(self(), :update_weather)
 
     {:ok, state}
   end
@@ -39,7 +44,12 @@ defmodule Dash.Weather.Server do
     {:reply, result, state}
   end
 
-  def handle_info(:update_weather_results, state) do
+  def handle_call(:broadcast, _from, state) do
+    broadcast_results(state.weather_results)
+    {:reply, :ok, state}
+  end
+
+  def handle_info(:update_weather, state) do
     results =
       Task.Supervisor.async_stream_nolink(
         Dash.task_sup(),
@@ -51,7 +61,8 @@ defmodule Dash.Weather.Server do
           end
         end,
         ordered: false,
-        max_concurrency: 15
+        max_concurrency: 15,
+        timeout: :timer.seconds(30)
       )
       |> Enum.to_list()
 
@@ -64,11 +75,15 @@ defmodule Dash.Weather.Server do
           weather_results
       end)
 
+    broadcast_results(weather_results)
+
     state = %State{state | weather_results: weather_results}
 
-    schedule_weather_update(:timer.minutes(10))
-
     {:noreply, state}
+  end
+
+  defp broadcast_results(weather_results) do
+    Phoenix.PubSub.broadcast(Dash.pub_sub(), Dash.topic(), {:updated_weather_results, weather_results})
   end
 
   defp fetch_weather(location) do
@@ -78,9 +93,5 @@ defmodule Dash.Weather.Server do
       {:ok, weather_result} -> {:ok, weather_result}
       error -> Logger.warn("Failed to retrieve weather: #{inspect(error)}")
     end
-  end
-
-  defp schedule_weather_update(timeout) do
-    Process.send_after(self(), :update_weather_results, timeout)
   end
 end
