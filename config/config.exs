@@ -50,7 +50,9 @@ case Mix.env() do
     nil
 end
 
-config :logger, :console, format: "$time $metadata[$level] $message\n"
+config :logger, :console,
+  metadata: [:mfa, :line],
+  format: "$time $metadata[$level]:\n$message\n\n"
 
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment
