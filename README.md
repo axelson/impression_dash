@@ -1,3 +1,7 @@
+weather
+
+curl -X GET "https://api.pirateweather.net/forecast/jAxRKANBF45bAfs1TM3SO2tTldyWo36L8Ns1CN0H/21.306944,-157.858333" -H  "accept: application/json" -H  "x-api-key: jAxRKANBF45bAfs1TM3SO2tTldyWo36L8Ns1CN0H"
+
 Sparkline modules
 
 Dash.Sparkline.ScenicComponent

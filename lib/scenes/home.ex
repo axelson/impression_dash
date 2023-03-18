@@ -61,9 +61,10 @@ defmodule Dash.Scene.Home do
       |> GraphTools.upsert(:quote, fn g ->
         render_text(g, scene.viewport, @default_quote)
       end)
-      #|> GraphTools.upsert(:honolulu, fn g ->
-      #  Dash.WeatherResult.ScenicComponent.upsert(g, %{location: location}, t: {15, 320})
-      #end)
+
+    # |> GraphTools.upsert(:honolulu, fn g ->
+    #  Dash.WeatherResult.ScenicComponent.upsert(g, %{location: location}, t: {15, 320})
+    # end)
 
     # |> GraphTools.upsert(:honolulu, fn g ->
     #   {width, _height} = scene.viewport.size
@@ -82,7 +83,9 @@ defmodule Dash.Scene.Home do
         {location, i}, graph ->
           graph
           |> GraphTools.upsert(location.name, fn g ->
-            Dash.WeatherResult.ScenicComponent.upsert(g, %{location: location}, t: {15, 320 + i * 75})
+            Dash.WeatherResult.ScenicComponent.upsert(g, %{location: location},
+              t: {15, 320 + i * 75}
+            )
           end)
       end)
 
