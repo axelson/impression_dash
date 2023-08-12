@@ -36,6 +36,7 @@ config :dash, :viewport,
   size: {800 * 2, 480 * 2},
   theme: :dark,
   default_scene: Dash.Scene.Home,
+  # default_scene: Dash.Scene.HomeOld,
   # default_scene: Dash.Scene.HomeScaled,
   drivers: [
     [

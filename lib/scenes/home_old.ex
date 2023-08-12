@@ -204,7 +204,7 @@ defmodule Dash.Scene.HomeOld do
     |> GraphTools.upsert(location.name, fn g ->
       Dash.WeatherResult.ScenicComponent.upsert(
         g,
-        %{location: location, weather_result: weather_result},
+        %{location: location, weather_result: weather_result, open_prs_by_author: %{}},
         t: transform
       )
     end)
