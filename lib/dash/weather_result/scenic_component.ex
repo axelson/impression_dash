@@ -28,6 +28,7 @@ defmodule Dash.WeatherResult.ScenicComponent do
       location: location,
       weather_result: weather_result,
       open_prs_by_author: open_prs_by_author,
+      assigned_prs_by_author: assigned_prs_by_author,
     } = params
 
     state = %State{location: location}
@@ -96,10 +97,11 @@ defmodule Dash.WeatherResult.ScenicComponent do
           end)
           |> GraphTools.upsert(:num_open_prs_text, fn g ->
             num_open_prs = open_prs_by_author[location.gh_login] || 0
+	    num_assigned_prs = assigned_prs_by_author[location.gh_login] || 0
 
             text =
-              if num_open_prs > 0 do
-                "#{num_open_prs} needs review"
+              if num_open_prs > 0 || num_assigned_prs > 0 do
+                "#{num_open_prs}/#{num_assigned_prs} PRs"
               else
                 ""
               end

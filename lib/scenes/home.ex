@@ -83,7 +83,7 @@ defmodule Dash.Scene.Home do
   end
 
   defp fetch_and_render_weather(graph, locations) do
-    open_prs_by_author = fetch_open_prs()
+    {open_prs_by_author, assigned_prs_by_author} = fetch_open_prs()
 
     locations
     |> Enum.map(fn location ->
@@ -103,7 +103,14 @@ defmodule Dash.Scene.Home do
       {{location, weather_result}, i}, graph ->
         y = 30 + i * 55
 
-        render_weather_component(graph, location, weather_result, open_prs_by_author, {15, y})
+        render_weather_component(
+          graph,
+          location,
+          weather_result,
+          open_prs_by_author,
+          assigned_prs_by_author,
+          {15, y}
+        )
         |> then(fn g ->
           # Don't show red bar on the last row (ez-mode)
           if location.name == "Home" do
@@ -118,12 +125,23 @@ defmodule Dash.Scene.Home do
 
   def fetch_open_prs() do
     case Dash.GhStats.fetch() do
-      {:ok, rows} -> hd(rows).num_prs_need_review_by_login
-      {:error, _} -> %{}
+      {:ok, rows} ->
+        row = hd(rows)
+        {row.num_prs_need_review_by_login, row.num_assigned_prs_by_login}
+
+      {:error, _} ->
+        {%{}, %{}}
     end
   end
 
-  defp render_weather_component(graph, location, weather_result, open_prs_by_author, transform) do
+  defp render_weather_component(
+         graph,
+         location,
+         weather_result,
+         open_prs_by_author,
+         assigned_prs_by_author,
+         transform
+       ) do
     graph
     |> GraphTools.upsert(location.name, fn g ->
       Dash.WeatherResult.ScenicComponent.upsert(
@@ -132,6 +150,7 @@ defmodule Dash.Scene.Home do
           location: location,
           weather_result: weather_result,
           open_prs_by_author: open_prs_by_author,
+          assigned_prs_by_author: assigned_prs_by_author,
         },
         t: transform
       )
