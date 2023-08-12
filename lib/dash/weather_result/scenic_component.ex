@@ -61,7 +61,10 @@ defmodule Dash.WeatherResult.ScenicComponent do
             )
           end)
           |> GraphTools.upsert(:temperature, fn g ->
-            temperature_str = "#{round(weather_result.temperature)}°"
+            fahrenheit = weather_result.temperature
+            celsius = Dash.WeatherResult.fahrenheit_to_celsius(fahrenheit)
+
+            temperature_str = "#{round(celsius)}/#{round(fahrenheit)}°"
 
             text(g, to_string(temperature_str),
               fill: :black,

@@ -8,4 +8,8 @@ defmodule Dash.WeatherResult do
     field :summary, String.t(), enforce: true
     field :temperature, float(), enforce: true
   end
+
+  def fahrenheit_to_celsius(fahrenheit) do
+    (fahrenheit - 32) * 5 / 9
+  end
 end
