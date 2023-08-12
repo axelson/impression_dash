@@ -17,13 +17,18 @@ defmodule Dash.Weather.Server do
   end
 
   def get_weather(location) do
-    GenServer.call(__MODULE__, {:get_weather, location})
+    GenServer.call(__MODULE__, {:get_weather, location}, 30_000)
   end
 
   def broadcast() do
     GenServer.call(__MODULE__, :broadcast)
   end
 
+  def update_weather do
+    GenServer.cast(__MODULE__, :update_weather)
+  end
+
+  @impl GenServer
   def init(opts \\ []) do
     locations = Keyword.get(opts, :locations, [])
 
@@ -32,12 +37,12 @@ defmodule Dash.Weather.Server do
       weather_results: %{},
     }
 
-    PeriodicalScheduler.register_callback({self(), :update_weather})
-    send(self(), :update_weather)
+    update_weather()
 
     {:ok, state}
   end
 
+  @impl GenServer
   def handle_call({:get_weather, location}, _from, state) do
     %State{weather_results: weather_results} = state
     result = Map.fetch(weather_results, location)
@@ -49,7 +54,10 @@ defmodule Dash.Weather.Server do
     {:reply, :ok, state}
   end
 
-  def handle_info(:update_weather, state) do
+  @impl GenServer
+  def handle_cast(:update_weather, state) do
+    Logger.info("Fetching updated weather")
+
     results =
       Task.Supervisor.async_stream_nolink(
         Dash.task_sup(),
@@ -83,15 +91,21 @@ defmodule Dash.Weather.Server do
   end
 
   defp broadcast_results(weather_results) do
-    Phoenix.PubSub.broadcast(Dash.pub_sub(), Dash.topic(), {:updated_weather_results, weather_results})
+    Logger.info("Broadcasting weather results to scene!")
+
+    Phoenix.PubSub.broadcast(
+      Dash.pub_sub(),
+      Dash.topic(),
+      {:updated_weather_results, weather_results}
+    )
   end
 
   defp fetch_weather(location) do
-    Logger.info("Fetching weather for #{location.name}")
+    if Dash.debug_logging?(), do: Logger.debug("Fetching weather for #{location.name}")
 
     case Dash.Weather.request(location) do
       {:ok, weather_result} -> {:ok, weather_result}
-      error -> Logger.warn("Failed to retrieve weather: #{inspect(error)}")
+      error -> Logger.warning("Failed to retrieve weather: #{inspect(error)}")
     end
   end
 end

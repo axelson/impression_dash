@@ -8,6 +8,7 @@ defmodule Dash do
   def pub_sub, do: @pub_sub
   def topic, do: @topic
   def task_sup, do: @task_supervisor
+  def debug_logging?, do: Application.get_env(:dash, :debug_logging, false)
 
   @doc """
   Sets centered text
@@ -28,6 +29,8 @@ defmodule Dash do
 
   defp scene_definition(:home), do: {Dash.Scene.Home, []}
   defp scene_definition(:color_test), do: {Dash.Scene.ColorTest, []}
+
+  def font, do: :unifont
 
   def roboto_font_metrics do
     {:ok, {_type, font_metrics}} = Scenic.Assets.Static.meta(:roboto)

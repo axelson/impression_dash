@@ -31,3 +31,4 @@ foo-*.tar
 priv/dash_database.db
 priv/dash_database.db-shm
 priv/dash_database.db-wal
+priv/__scenic

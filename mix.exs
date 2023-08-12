@@ -37,10 +37,11 @@ defmodule Dash.MixProject do
       # Other deps
       {:mahaul, "~> 0.3.0"},
       {:zoneinfo, "~> 0.1.5"},
+      {:quantum, "~> 3.0"},
       # A tiny bit weird to rely on this for hosts
       {:vintage_net, "~> 0.13.0"},
       # {:mahaul, path: "~/dev/forks/mahaul"},
-      {:data_tracer, path: "~/dev/data_tracer", only: :dev},
+      {:data_tracer, path: "~/dev/data_tracer"},
       {:contex, path: "~/dev/forks/contex"},
       {:dotenv_parser, "~> 2.0", only: :dev},
       {:ecto_sqlite3, "~> 0.7"},

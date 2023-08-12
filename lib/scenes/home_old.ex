@@ -154,7 +154,7 @@ defmodule Dash.Scene.HomeOld do
           end)
 
         _ ->
-          Logger.warn("Unrecognized task ref: #{inspect(task_ref)}")
+          Logger.warning("Unrecognized task ref: #{inspect(task_ref)}")
           scene
       end
 
@@ -171,7 +171,7 @@ defmodule Dash.Scene.HomeOld do
               {:ok, weather_result} ->
                 render_weather(graph, location, weather_result, {15, 260 + i * 75})
 
-              error ->
+              _error ->
                 graph
             end
         end)

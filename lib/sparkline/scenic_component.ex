@@ -66,40 +66,41 @@ defmodule Dash.Sparkline.ScenicComponent do
     {:ok, scene}
   end
 
-  def upsert(graph_or_primitive, data, opts) do
-    case graph_or_primitive do
-      %Scenic.Graph{} = graph -> add_to_graph(graph, data, opts)
-      %Scenic.Primitive{} = primitive -> modify(primitive, data, opts)
-    end
-  end
+  # Probably not needed because of Upsertable
+  # def upsert(graph_or_primitive, data, opts) do
+  #   case graph_or_primitive do
+  #     %Scenic.Graph{} = graph -> add_to_graph(graph, data, opts)
+  #     %Scenic.Primitive{} = primitive -> modify(primitive, data, opts)
+  #   end
+  # end
 
   # Copied from Scenic:
   # https://github.com/boydm/scenic/blob/94679b1ab50834e20b94ca11bc0c5645bf0c909e/lib/scenic/components.ex#L696
-  defp modify(
-         %Scenic.Primitive{module: Scenic.Primitive.Component, data: {mod, _, id}} = p,
-         data,
-         options
-       ) do
-    data =
-      case mod.validate(data) do
-        {:ok, data} -> data
-        {:error, msg} -> raise msg
-      end
+  # defp modify(
+  #        %Scenic.Primitive{module: Scenic.Primitive.Component, data: {mod, _, id}} = p,
+  #        data,
+  #        options
+  #      ) do
+  #   data =
+  #     case mod.validate(data) do
+  #       {:ok, data} -> data
+  #       {:error, msg} -> raise msg
+  #     end
 
-    Scenic.Primitive.put(p, {mod, data, id}, options)
-  end
+  #   Scenic.Primitive.put(p, {mod, data, id}, options)
+  # end
 
-  # Copied from Scenic:
-  # https://github.com/boydm/scenic/blob/9314020b2962e38bea871e8e1f59cd273dfe0af0/lib/scenic/primitives.ex#L1467
-  defp modify(%Scenic.Primitive{module: mod} = p, data, opts) do
-    data =
-      case mod.validate(data) do
-        {:ok, data} -> data
-        {:error, error} -> raise Exception.message(error)
-      end
+  # # Copied from Scenic:
+  # # https://github.com/boydm/scenic/blob/9314020b2962e38bea871e8e1f59cd273dfe0af0/lib/scenic/primitives.ex#L1467
+  # defp modify(%Scenic.Primitive{module: mod} = p, data, opts) do
+  #   data =
+  #     case mod.validate(data) do
+  #       {:ok, data} -> data
+  #       {:error, error} -> raise Exception.message(error)
+  #     end
 
-    Scenic.Primitive.put(p, data, opts)
-  end
+  #   Scenic.Primitive.put(p, data, opts)
+  # end
 
   @impl Scenic.Scene
   def handle_update(params, _opts, scene) do
@@ -116,7 +117,7 @@ defmodule Dash.Sparkline.ScenicComponent do
 
   @impl GenServer
   def handle_info(msg, scene) do
-    Logger.warn("Unhandled message: #{inspect(msg)}")
+    Logger.warning("Unhandled message: #{inspect(msg)}")
     {:noreply, scene}
   end
 
@@ -128,7 +129,7 @@ defmodule Dash.Sparkline.ScenicComponent do
         {:color_rgba, {r, g, b, alpha}}
 
       other ->
-        Logger.warn("Error or unrecognized web color #{inspect(other)}")
+        Logger.warning("Error or unrecognized web color #{inspect(other)}")
         :red
     end
   end
@@ -274,7 +275,7 @@ defmodule Dash.Sparkline.ScenicComponent do
   end
 
   def update_path(%Path{} = path, command) do
-    Logger.warn("Unrecognized command #{inspect(command)}")
+    Logger.warning("Unrecognized command #{inspect(command)}")
     path
   end
 end

@@ -5,6 +5,11 @@ defmodule Dash.Location do
     field :name, String.t(), enforce: true
     field :location_name, String.t(), enforce: true
     field :latlon, String.t(), enforce: true
+    field :tz, String.t()
+    field :start_time, Time.t()
+    field :partial_finish_time, Time.t()
+    field :finish_time, Time.t()
+    field :gh_login, String.t()
   end
 end
 

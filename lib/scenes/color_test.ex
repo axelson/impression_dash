@@ -5,26 +5,30 @@ defmodule Dash.Scene.ColorTest do
   import Scenic.Primitives
   require Logger
 
-  defp initial_graph do
+  defp initial_graph(%Scenic.ViewPort{size: {width, height}}) do
+    spacing = div(height, 7)
+    text_spacer = -46
+
     Graph.build(fill: :black, font: :roboto)
-    |> rectangle({600, 64}, t: {0, 64}, fill: :white)
-    |> rectangle({600, 64}, t: {0, 128}, fill: :green)
-    |> rectangle({600, 64}, t: {0, 192}, fill: :blue)
-    |> rectangle({600, 64}, t: {0, 256}, fill: :red)
-    |> rectangle({600, 64}, t: {0, 320}, fill: :yellow)
-    |> rectangle({600, 64}, t: {0, 384}, fill: :orange)
-    |> text("Black", font_size: 36, t: {24, 38}, fill: :white)
-    |> text("White", font_size: 36, t: {24, 102}, fill: :black)
-    |> text("Green", font_size: 36, t: {24, 166}, fill: :white)
-    |> text("Blue", font_size: 36, t: {24, 230}, fill: :white)
-    |> text("Red", font_size: 36, t: {24, 294}, fill: :white)
-    |> text("Yellow", font_size: 36, t: {24, 358}, fill: :black)
-    |> text("Orange", font_size: 36, t: {24, 422}, fill: :white)
+    |> rectangle({width, spacing}, t: {0, spacing * 0}, fill: :black)
+    |> rectangle({width, spacing}, t: {0, spacing * 1}, fill: :white)
+    |> rectangle({width, spacing}, t: {0, spacing * 2}, fill: :green)
+    |> rectangle({width, spacing}, t: {0, spacing * 3}, fill: :blue)
+    |> rectangle({width, spacing}, t: {0, spacing * 4}, fill: :red)
+    |> rectangle({width, spacing}, t: {0, spacing * 5}, fill: :yellow)
+    |> rectangle({width, spacing}, t: {0, spacing * 6}, fill: :orange)
+    |> text("Black", font_size: 36, t: {24, spacing * 0 - text_spacer}, fill: :white)
+    |> text("White", font_size: 36, t: {24, spacing * 1 - text_spacer}, fill: :black)
+    |> text("Green", font_size: 36, t: {24, spacing * 2 - text_spacer}, fill: :white)
+    |> text("Blue", font_size: 36, t: {24, spacing * 3 - text_spacer}, fill: :white)
+    |> text("Red", font_size: 36, t: {24, spacing * 4 - text_spacer}, fill: :white)
+    |> text("Yellow", font_size: 36, t: {24, spacing * 5 - text_spacer}, fill: :black)
+    |> text("Orange", font_size: 36, t: {24, spacing * 6 - text_spacer}, fill: :white)
   end
 
   @impl Scenic.Scene
   def init(scene, _params, _opts) do
-    state = %{graph: initial_graph()}
+    state = %{graph: initial_graph(scene.viewport)}
     Logger.info("Started :mainscene")
 
     Process.register(self(), :mainscene)

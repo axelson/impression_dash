@@ -30,10 +30,19 @@ defmodule PeriodicalScheduler do
 
       receive do
         {VintageNet, ["interface", _, "connection"], :lan, :internet, _data} = msg ->
-          Logger.info("Probably connected!!! #{inspect msg}")
+          Logger.info("Probably connected!!! #{inspect(msg)}")
       after
         @timeout ->
           Logger.info("No connection within #{@timeout} ms")
+      end
+
+      # Wait for a second message?
+      receive do
+        {VintageNet, ["interface", _, "connection"], :lan, :internet, _data} = msg ->
+          Logger.info("Probably connected2!!! #{inspect(msg)}")
+      after
+        @timeout ->
+          Logger.info("No connection within #{@timeout} ms2")
       end
     end
 
@@ -66,10 +75,16 @@ defmodule PeriodicalScheduler do
     {:noreply, state}
   end
 
-  def seconds_till_next_tick(now \\ Time.utc_now()) do
-    minutes = (14 - rem(now.minute, 15)) * 60
-    seconds = 60 - now.second
-    minutes + seconds
+  def seconds_till_next_tick() do
+    now = DateTime.now!("Pacific/Honolulu") |> DateTime.to_time()
+
+    if now.hour < 6 do
+      6 * 60 * 60
+    else
+      minutes = (29 - rem(now.minute, 15)) * 60
+      seconds = 60 - now.second
+      minutes + seconds
+    end
   end
 
   defp schedule_work() do

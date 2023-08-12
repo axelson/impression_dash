@@ -28,9 +28,15 @@ config :scenic, :assets, module: Dash.Assets
 config :dash, :viewport,
   name: :main_viewport,
   # Make the ssize match the impression's resolution
-  size: {600, 448},
+  # 5.7"
+  # size: {600, 448},
+  # 7.3"
+  # size: {800, 480},
+  # local dev
+  size: {800 * 2, 480 * 2},
   theme: :dark,
   default_scene: Dash.Scene.Home,
+  # default_scene: Dash.Scene.HomeScaled,
   drivers: [
     [
       module: Scenic.Driver.Local,
