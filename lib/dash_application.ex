@@ -9,9 +9,9 @@ defmodule DashApplication do
     children =
       [
         Dash.Repo,
+        {Phoenix.PubSub, name: Dash.pub_sub()},
         Dash.QuantumScheduler,
         {Dash.Weather.Server, locations: Application.fetch_env!(:dash, :locations)},
-        {Phoenix.PubSub, name: Dash.pub_sub()},
         {Task.Supervisor, name: Dash.task_sup()},
         if main_viewport_config do
           {Scenic, [main_viewport_config]}
