@@ -142,4 +142,17 @@ defmodule Dash do
       pretty: true
     )
   end
+
+  def sample_location do
+    %Dash.Location{
+      name: "José",
+      location_name: "Kraków, Poland",
+      latlon: "50.061,19.937",
+      tz: "Europe/Warsaw",
+      start_time: ~T[09:00:00],
+      partial_finish_time: ~T[18:00:00],
+      finish_time: ~T[23:00:00],
+      gh_login: "axelson",
+    }
+  end
 end
