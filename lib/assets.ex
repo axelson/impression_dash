@@ -1,14 +1,14 @@
 defmodule Dash.Assets do
   @alias [
-    adventures: "fonts/adventures.ttf",
-    half: "fonts/half_bold_pixel7.ttf",
-    minecraft: "fonts/minecraft.ttf",
-    pix_bold: "fonts/pix_bold.ttf",
-    pix_sans: "fonts/pix_sans.ttf",
-    pixels: "fonts/pixels.ttf",
-    quin: "fonts/quin.ttf",
-    silk_regular: "fonts/silk_regular.ttf",
-    unifont: "fonts/unifont.ttf",
+    adventures: {:dash, "fonts/adventures.ttf"},
+    half: {:dash, "fonts/half_bold_pixel7.ttf"},
+    minecraft: {:dash, "fonts/minecraft.ttf"},
+    pix_bold: {:dash, "fonts/pix_bold.ttf"},
+    pix_sans: {:dash, "fonts/pix_sans.ttf"},
+    pixels: {:dash, "fonts/pixels.ttf"},
+    quin: {:dash, "fonts/quin.ttf"},
+    silk_regular: {:dash, "fonts/silk_regular.ttf"},
+    unifont: {:dash, "fonts/unifont.ttf"},
   ]
 
   use Scenic.Assets.Static,
