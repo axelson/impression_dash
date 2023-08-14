@@ -51,7 +51,8 @@ defmodule Dash.WeatherResult.ScenicComponent do
             )
           end)
 
-        if weather_result do
+	# TODO: Render even when weather result is not available
+        if weather_result && weather_result.temperature do
           graph
           |> GraphTools.upsert(:summary, fn g ->
             text(g, weather_text(weather_result.summary),

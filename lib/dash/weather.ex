@@ -14,12 +14,16 @@ defmodule Dash.Weather do
   def request(%Dash.Location{latlon: latlon}) do
     api_key = Dash.Env.pirate_weather_api_key()
 
-    res =
-      Req.get!(
-        "https://api.pirateweather.net/forecast/#{api_key}/#{latlon}?exclude=alerts,minutely,hourly,daily"
-      )
+    if api_key == nil do
+      {:error, :no_api_key}
+    else
+      res =
+        Req.get!(
+          "https://api.pirateweather.net/forecast/#{api_key}/#{latlon}?exclude=alerts,minutely,hourly,daily"
+        )
 
-    Dash.Weather.parse_result(res.body)
+      Dash.Weather.parse_result(res.body)
+    end
   end
 
   # https://github.com/jjasghar/pirateweather/blob/ccccc1b67345611bd14d6eeeb49cd9cdc953c3f5/docs/API.md
