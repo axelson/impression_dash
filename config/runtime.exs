@@ -58,4 +58,5 @@ config :dash, Dash.QuantumScheduler,
     {"*/30 * * * *", fn -> Dash.Weather.Server.update_weather() end},
   ]
 
-Code.require_file("/mnt/arch_linux/home/jason/dev/inky_impression_livebook/.target.secret.exs")
+# Code.require_file("/mnt/arch_linux/home/jason/dev/inky_impression_livebook/.target.secret.exs")
+Code.require_file("/mnt/arch_linux/home/jason/dev/inky_impression_livebook/.target.public.exs")

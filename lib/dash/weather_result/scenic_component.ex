@@ -98,7 +98,7 @@ defmodule Dash.WeatherResult.ScenicComponent do
           end)
           |> GraphTools.upsert(:num_open_prs_text, fn g ->
             num_open_prs = open_prs_by_author[location.gh_login] || 0
-	    num_assigned_prs = assigned_prs_by_author[location.gh_login] || 0
+            num_assigned_prs = assigned_prs_by_author[location.gh_login] || 0
 
             text =
               if num_open_prs > 0 || num_assigned_prs > 0 do
@@ -116,12 +116,16 @@ defmodule Dash.WeatherResult.ScenicComponent do
             )
           end)
           # I've had some issues putting other things after the icon
+          # |> GraphTools.upsert(:icon_bg, fn g ->
+          #   g
+          #   |> rect({30, 30}, fill: :blue, t: {210, -10})
+          # end)
           |> GraphTools.upsert(:icon, fn g ->
             icon = weather_icon(weather_result.icon)
 
             sprites(
               g,
-              {{:dash, "icons/" <> icon}, [{{0, 0}, {512, 512}, {210, -10}, {30, 30}}]}
+              {{:dash, "icons/" <> icon}, [{{0, 0}, {30, 30}, {210, -10}, {30, 30}}]}
             )
           end)
         else
@@ -157,8 +161,10 @@ defmodule Dash.WeatherResult.ScenicComponent do
   # end
 
   @impl GenServer
+  # Why am I sending messages here??? Is this even being used?
   def handle_info({:weather_result, weather_result}, scene) do
-    Logger.info("weather_result: #{inspect(weather_result, pretty: true)}")
+    Logger.warning("WeatherResult receiving weather result message! This may result in extra draw")
+    # Logger.info("weather_result: #{inspect(weather_result, pretty: true)}")
 
     scene =
       GraphState.update_graph(scene, fn graph ->
@@ -190,17 +196,14 @@ defmodule Dash.WeatherResult.ScenicComponent do
     case icon do
       "cloudy" -> "cloud.png"
       "lightning" -> "lightning.png"
-      # ???
-      "mist" -> "mist.png"
       "clear-night" -> "night.png"
       "partly-cloudy-night" -> "partly_cloudy.png"
       "partly-cloudy-day" -> "partly_cloudy.png"
       "rain" -> "rain.png"
+      "fog" -> "mist.png"
       # ???
       "sleet" -> "sleet.png"
       "snowing" -> "snowflake.png"
-      # ??
-      "sunny" -> "sunny.png"
       "clear-day" -> "sun.png"
       "sun" -> "sun.png"
       "wind" -> "wind.png"

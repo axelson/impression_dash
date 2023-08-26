@@ -10,6 +10,10 @@ defmodule Dash do
   def task_sup, do: @task_supervisor
   def debug_logging?, do: Application.get_env(:dash, :debug_logging, false)
 
+  def show_random_quote do
+    Dash.Trello.random_quote() |> Dash.Trello.display_quote()
+  end
+
   @doc """
   Sets centered text
   """
@@ -29,6 +33,7 @@ defmodule Dash do
 
   defp scene_definition(:home), do: {Dash.Scene.Home, []}
   defp scene_definition(:color_test), do: {Dash.Scene.ColorTest, []}
+  defp scene_definition(:fonts), do: {Dash.AvailableFonts, []}
 
   def font, do: :unifont
 
@@ -107,6 +112,14 @@ defmodule Dash do
   defp trello_token, do: Dash.Env.trello_api_token()
 
   def demo do
+    text =
+      "“I urge you to please notice when you are happy, and exclaim or murmur or think at some point, 'If this isn't nice, I don't know what is.'” - Kurt Vonnegut Character"
+
+    {:ok, {_type, font_metrics}} = Scenic.Assets.Static.meta(:roboto)
+    ScenicWidgets.Utils.wrap_and_shorten_text(text, 100, 3, 16, font_metrics)
+  end
+
+  def demo_weather do
     api_key = Dash.Env.pirate_weather_api_key()
     honolulu = "21.306944,-157.858333"
 

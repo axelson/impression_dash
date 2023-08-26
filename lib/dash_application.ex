@@ -10,6 +10,7 @@ defmodule DashApplication do
       [
         Dash.Repo,
         {Phoenix.PubSub, name: Dash.pub_sub()},
+        Dash.PomodoroServer,
         Dash.QuantumScheduler,
         {Dash.Weather.Server, locations: Application.fetch_env!(:dash, :locations)},
         {Task.Supervisor, name: Dash.task_sup()},

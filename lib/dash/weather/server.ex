@@ -83,7 +83,7 @@ defmodule Dash.Weather.Server do
           weather_results
       end)
 
-    broadcast_results(weather_results)
+    # broadcast_results(weather_results)
 
     state = %State{state | weather_results: weather_results}
 

@@ -15,23 +15,47 @@ defmodule Dash.Scene.Home do
     defstruct [:graph]
   end
 
+  def refresh do
+    Phoenix.PubSub.broadcast(
+      Dash.pub_sub(),
+      Dash.topic(),
+      :refresh
+    )
+  end
+
+  def switch_quotes do
+    Phoenix.PubSub.broadcast(
+      Dash.pub_sub(),
+      Dash.topic(),
+      :switch_quotes
+    )
+  end
+
   @impl Scenic.Scene
   def init(scene, _params, _opts) do
     Process.register(self(), __MODULE__)
     :ok = Phoenix.PubSub.subscribe(Dash.pub_sub(), Dash.topic())
     scale = Application.get_env(:dash, :scale, 1)
 
+    default_quote =
+      "“Being deeply loved by someone gives you strength, while loving someone deeply gives you courage…” – Lao Tzu"
+
+    commitment = Dash.Commitments.random_commitment()
+
     graph =
-      Graph.build(font: @font, font_size: @default_text_size, fill: :black, scale: scale)
+      Graph.build(font: @font, font_size: @default_text_size, scale: scale)
+      # Graph.build(font: @font, font_size: @default_text_size, fill: :black, scale: scale)
       |> GraphTools.upsert(:bg, fn g ->
         render_background(g, scene.viewport, :white)
       end)
       |> render_time_text()
-      # |> Dash.TextSize.add_to_graph(%{})
-      # |> Dash.AvailableFonts.add_to_graph(%{})
-      # Currently the inky impression doesn't fill the entire screen so I use
-      # this green rectangle to remind me of the unprintable section
-      |> rect({80, 480}, t: {720, 0}, fill: :green)
+      |> render_quote_text(default_quote)
+      |> render_commitment_text(commitment)
+      |> render_calendar()
+      |> render_pomodoro()
+
+    # |> Dash.TextSize.add_to_graph(%{})
+    # |> Dash.AvailableFonts.add_to_graph(%{})
 
     graph = fetch_and_render_weather(graph, Dash.Locations.all())
 
@@ -67,11 +91,42 @@ defmodule Dash.Scene.Home do
   def handle_info(:refresh, scene) do
     Logger.info("Rendering updated scene via refresh")
 
+    quote = Dash.Trello.random_quote()
+
     scene =
       scene
       |> GraphState.update_graph(fn graph ->
         fetch_and_render_weather(graph, Dash.Locations.all())
         |> render_time_text()
+        |> render_quote_text(quote.text)
+        |> render_pomodoro()
+      end)
+
+    {:noreply, scene}
+  end
+
+  def handle_info(:switch_quotes, scene) do
+    quote = Dash.Trello.random_quote()
+    commitment = Dash.Commitments.random_commitment()
+
+    scene =
+      scene
+      |> GraphState.update_graph(fn graph ->
+        graph
+        |> render_quote_text(quote.text)
+        |> render_commitment_text(commitment)
+      end)
+
+    {:noreply, scene}
+  end
+
+  def handle_info({:set_quote, text}, scene) do
+    Logger.info("Setting quote to: #{inspect(text)}")
+
+    scene =
+      scene
+      |> GraphState.update_graph(fn graph ->
+        render_quote_text(graph, text)
       end)
 
     {:noreply, scene}
@@ -117,7 +172,7 @@ defmodule Dash.Scene.Home do
             g
           else
             g
-            |> rect({720, 1}, fill: :red, t: {0, y + 32})
+            |> rect({320, 1}, fill: :red, t: {0, y + 32})
           end
         end)
     end)
@@ -173,7 +228,287 @@ defmodule Dash.Scene.Home do
 
     g
     |> GraphTools.upsert(:time, fn g ->
-      text(g, time_str, id: :time, font: :unifont, font_size: 32, t: {540, 470})
+      text(g, time_str, id: :time, font: :unifont, font_size: 32, t: {610, 470}, fill: :black)
     end)
+  end
+
+  def get_quote_author(text) do
+    case String.split(text, "–") do
+      [quote, author] ->
+        {String.trim(quote), String.trim(author)}
+
+      _ ->
+        case String.split(text, "-") do
+          [quote, author] ->
+            {String.trim(quote), String.trim(author)}
+
+          _ ->
+            {text, nil}
+        end
+    end
+  end
+
+  defp render_quote_text(g, text) do
+    pos = {550, 25}
+    # pos = {350, 25}
+    # |> FontMetrics.wrap(line_width, font_size, font_metrics)
+
+    {quote, author} = get_quote_author(text)
+    {display_text, font, font_size, font_metrics} = wrap_and_shorten_quote(quote)
+
+    g
+    # |> GraphTools.upsert(:quote_rect, fn g ->
+    #   rect(g, {10, 10}, id: :quote_rect, fill: :red, t: pos)
+    # end)
+    |> GraphTools.upsert(:quote_text, fn g ->
+      text(g, display_text,
+        id: :quote_text,
+        font: font,
+        font_size: font_size,
+        fill: :black,
+        t: pos,
+        text_align: :center,
+        text_base: :top
+      )
+
+      g
+      |> group(
+        fn g ->
+          lines = String.split(display_text, "\n")
+
+          lines
+          |> Enum.with_index()
+          |> Enum.reduce(g, fn {line, idx}, g ->
+            y = idx * font_size
+
+            g
+            |> text(line,
+              # id: :quote_text,
+              font: font,
+              font_size: font_size,
+              fill: :black,
+              t: {0, y},
+              text_align: :center,
+              text_base: :top
+            )
+          end)
+        end,
+        id: :quote_text,
+        translate: pos
+      )
+    end)
+    |> GraphTools.upsert(:quote_author, fn g ->
+      quote_width =
+        FontMetrics.width(display_text, font_size, font_metrics)
+        |> round()
+
+      lines = String.split(display_text, "\n") |> length()
+
+      {x, y} = pos
+      # Magic number that looks good
+      y_fudge = 6
+      y_offset = FontMetrics.points_to_pixels(font_size) * lines - y_fudge
+      author_pos = {x + div(quote_width, 2), y + y_offset}
+
+      author =
+        if author do
+          "– #{author}"
+        else
+          ""
+        end
+
+      text(g, author,
+        id: :quote_author,
+        font: font,
+        font_size: font_size,
+        fill: :black,
+        t: author_pos,
+        text_align: :right,
+        text_base: :top
+      )
+    end)
+  end
+
+  defp render_commitment_text(graph, %Dash.Commitments.Commitment{} = commitment) do
+    {x, y} = pos = {350, 158}
+    description_pos = {x, y + 24}
+
+    {commitment_description, font, font_size, font_metrics} =
+      wrap_and_shorten_commitment(commitment.description)
+
+    title_width = FontMetrics.width(commitment.title, font_size, font_metrics)
+
+    graph
+    |> GraphTools.upsert(:commitment_title, fn g ->
+      text(g, commitment.title,
+        id: :commitment_title,
+        font: font,
+        font_size: font_size,
+        fill: :black,
+        t: pos,
+        text_align: :left,
+        text_base: :top
+      )
+    end)
+    |> GraphTools.upsert(:commitment_separator, fn g ->
+      # Underline the text
+      # NOTE: Lines don't show up well on my e-ink screen so use a rect
+      rect(g, {title_width, 1}, id: :commitment_separator, fill: :black, t: {x, y + 14})
+    end)
+    |> GraphTools.upsert(:commitment_description, fn g ->
+      text(g, commitment_description,
+        id: :commitment_description,
+        font: font,
+        font_size: font_size,
+        fill: :black,
+        t: description_pos,
+        text_align: :left,
+        text_base: :top
+      )
+
+      g
+      |> group(
+        fn g ->
+          lines = String.split(commitment_description, "\n")
+
+          lines
+          |> Enum.with_index()
+          |> Enum.reduce(g, fn {line, idx}, g ->
+            y = idx * font_size
+
+            g
+            |> text(line,
+              # id: :quote_text,
+              font: font,
+              font_size: font_size,
+              fill: :black,
+              t: {0, y},
+              text_align: :left,
+              text_base: :top
+            )
+          end)
+        end,
+        id: :commitment_description,
+        translate: description_pos
+      )
+    end)
+  end
+
+  def render_calendar(graph) do
+    Dash.CalendarComponent.add_to_graph(
+      graph,
+      %{
+        today: Date.utc_today(),
+      },
+      t: {616, 350}
+    )
+  end
+
+  def render_pomodoro(graph) do
+    Logger.info("in render_pomodoro/1")
+
+    GraphTools.upsert(graph, :pomodoro_viz, fn g ->
+      Dash.PomodoroBarVizComponent.upsert(
+        g,
+        %{stats: get_pomodoro_stats()},
+        id: :pomodoro_viz,
+        t: {16, 460}
+      )
+    end)
+  end
+
+  def get_pomodoro_stats do
+    try do
+      Dash.PomodoroServer.get_stats()
+      # stats =
+      #   Dash.PomodoroParser.sample_csv()
+      #   |> Dash.PomodoroParser.parse()
+
+      # {:ok, stats}
+    catch
+      :exit, _ -> {:error, :unable_to_fetch_stats}
+    end
+  end
+
+  defp wrap_and_shorten_quote(text, try \\ 1) do
+    line_width =
+      case try do
+        1 -> 300
+        2 -> 400
+        3 -> 400
+      end
+
+    num_lines =
+      case try do
+        1 -> 3
+        2 -> 3
+        3 -> 4
+      end
+
+    font_size = 16
+    font = :unifont
+    {:ok, {_type, font_metrics}} = Scenic.Assets.Static.meta(font)
+
+    display_text =
+      ScenicWidgets.Utils.wrap_and_shorten_text(
+        text,
+        line_width,
+        num_lines,
+        font_size,
+        font_metrics
+      )
+
+    # A bit hacky
+    cond do
+      try == 1 && String.ends_with?(display_text, "…") ->
+        wrap_and_shorten_quote(text, 2)
+
+      try == 2 && String.ends_with?(display_text, "…") ->
+        wrap_and_shorten_quote(text, 3)
+
+      true ->
+        {display_text, font, font_size, font_metrics}
+    end
+  end
+
+  defp wrap_and_shorten_commitment(text, try \\ 1) do
+    line_width =
+      case try do
+        1 -> 300
+        2 -> 400
+        3 -> 400
+      end
+
+    num_lines =
+      case try do
+        1 -> 3
+        2 -> 3
+        3 -> 4
+      end
+
+    font_size = 16
+    font = :unifont
+    {:ok, {_type, font_metrics}} = Scenic.Assets.Static.meta(font)
+
+    display_text =
+      ScenicWidgets.Utils.wrap_and_shorten_text(
+        text,
+        line_width,
+        num_lines,
+        font_size,
+        font_metrics
+      )
+
+    # A bit hacky
+    cond do
+      try == 1 && String.ends_with?(display_text, "…") ->
+        wrap_and_shorten_commitment(text, 2)
+
+      try == 2 && String.ends_with?(display_text, "…") ->
+        wrap_and_shorten_commitment(text, 3)
+
+      true ->
+        {display_text, font, font_size, font_metrics}
+    end
   end
 end

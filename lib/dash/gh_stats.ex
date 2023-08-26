@@ -41,7 +41,7 @@ defmodule Dash.GhStats do
           "num_prs_open",
           "num_outstanding_review_requests",
           "num_prs_need_review_by_login",
-	  "num_assigned_prs_by_login",
+          "num_assigned_prs_by_login",
           "inserted_at",
         ]
         | rest,
@@ -54,7 +54,7 @@ defmodule Dash.GhStats do
             num_prs_open: String.to_integer(Enum.at(raw_row, 2)),
             num_outstanding_review_requests: String.to_integer(Enum.at(raw_row, 3)),
             num_prs_need_review_by_login: Jason.decode!(Enum.at(raw_row, 4)),
-	    num_assigned_prs_by_login: Jason.decode!(Enum.at(raw_row, 5)),
+            num_assigned_prs_by_login: Jason.decode!(Enum.at(raw_row, 5)),
             inserted_at: NaiveDateTime.from_iso8601!(Enum.at(raw_row, 6)),
           }
         end)
