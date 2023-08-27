@@ -1,5 +1,5 @@
 defmodule Dash.PomodoroParser do
-  def parse(csv) do
+  def parse(csv) when is_binary(csv) do
     today = DateTime.now!("Pacific/Honolulu") |> DateTime.to_date()
 
     NimbleCSV.RFC4180.parse_string(csv)

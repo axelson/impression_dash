@@ -15,7 +15,7 @@ defmodule Dash.PomodoroServer do
   end
 
   def refresh do
-    GenServer.call(__MODULE__, :refresh)
+    GenServer.call(__MODULE__, :refresh, 30_000)
   end
 
   def get_stats do
@@ -24,9 +24,14 @@ defmodule Dash.PomodoroServer do
 
   @impl GenServer
   def init(_opts) do
-    state = %State{}
+    state = %State{rows: []}
+    {:ok, state, {:continue, nil}}
+  end
+
+  @impl GenServer
+  def handle_continue(_, state) do
     state = do_refresh(state)
-    {:ok, state}
+    {:noreply, state}
   end
 
   @impl GenServer
@@ -41,9 +46,9 @@ defmodule Dash.PomodoroServer do
   end
 
   def do_refresh(state) do
-    case Req.get("http://pomodoro.nerves-side-screen.local/api/stats.csv") do
-      {:ok, response} ->
-        rows = Dash.PomodoroParser.parse(response.body)
+    case Req.get("http://pomodoro.nerves-side-screen.local/api/stats.csv", max_retries: 2) do
+      {:ok, %Req.Response{status: 200, body: body}} when is_binary(body) ->
+        rows = Dash.PomodoroParser.parse(body)
         %{state | rows: rows}
 
       err ->
