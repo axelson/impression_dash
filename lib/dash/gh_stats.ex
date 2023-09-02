@@ -21,14 +21,21 @@ defmodule Dash.GhStats do
   end
 
   def fetch do
-    Req.new(base_url: gh_stats_base_url())
-    |> Req.request(url: "/api/stats.csv")
-    |> case do
-      {:ok, response} ->
-        {:ok, parse(response.body)}
+    if Dash.glamour_shot?() do
+      Path.join([:code.priv_dir(:dash), "sample_gh_stats.csv"])
+      |> File.read!()
+      |> parse()
+      |> then(&{:ok, &1})
+    else
+      Req.new(base_url: gh_stats_base_url())
+      |> Req.request(url: "/api/stats.csv")
+      |> case do
+        {:ok, response} ->
+          {:ok, parse(response.body)}
 
-      res ->
-        {:error, res}
+        res ->
+          {:error, res}
+      end
     end
   end
 

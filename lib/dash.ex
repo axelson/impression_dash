@@ -9,6 +9,7 @@ defmodule Dash do
   def topic, do: @topic
   def task_sup, do: @task_supervisor
   def debug_logging?, do: Application.get_env(:dash, :debug_logging, false)
+  def glamour_shot?, do: Application.get_env(:dash, :glamour_shot?, true)
 
   def show_random_quote do
     Dash.Trello.random_quote() |> Dash.Trello.display_quote()

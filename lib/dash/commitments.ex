@@ -13,6 +13,10 @@ defmodule Dash.Commitments do
   def commitments, do: @commitments
 
   def random_commitment do
-    Enum.random(commitments())
+    if Dash.glamour_shot?() do
+      Enum.at(commitments(), 1)
+    else
+      Enum.random(commitments())
+    end
   end
 end

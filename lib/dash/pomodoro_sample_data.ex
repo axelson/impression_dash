@@ -76,8 +76,13 @@ defmodule Dash.PomodoroSampleData do
     ],
   ]
 
-  def sample do
+  def sample_changing do
     idx = System.unique_integer([:positive, :monotonic])
     Enum.at(@samples, rem(idx, 2))
+  end
+
+  def sample_static do
+    Dash.PomodoroParser.sample_csv()
+    |> Dash.PomodoroParser.parse(filter?: false)
   end
 end

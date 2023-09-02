@@ -41,8 +41,11 @@ defmodule Dash.PomodoroServer do
   end
 
   def handle_call(:get_stats, _from, state) do
-    # {:reply, {:ok, Dash.PomodoroSampleData.sample}, state}
-    {:reply, {:ok, state.rows}, state}
+    if Dash.glamour_shot?() do
+      {:reply, {:ok, Dash.PomodoroSampleData.sample_static()}, state}
+    else
+      {:reply, {:ok, state.rows}, state}
+    end
   end
 
   def do_refresh(state) do

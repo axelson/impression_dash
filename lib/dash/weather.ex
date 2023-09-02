@@ -11,19 +11,32 @@ defmodule Dash.Weather do
   #   }
   # end
 
-  def request(%Dash.Location{latlon: latlon}) do
-    api_key = Dash.Env.pirate_weather_api_key()
-
-    if api_key == nil do
-      {:error, :no_api_key}
+  def request(%Dash.Location{latlon: latlon} = location) do
+    if Dash.glamour_shot?() do
+      sample_data_path(location)
+      |> File.read!()
+      |> Jason.decode!()
+      |> Dash.Weather.parse_result()
     else
-      res =
-        Req.get!(
-          "https://api.pirateweather.net/forecast/#{api_key}/#{latlon}?exclude=alerts,minutely,hourly,daily"
-        )
+      api_key = Dash.Env.pirate_weather_api_key()
 
-      Dash.Weather.parse_result(res.body)
+      if api_key == nil do
+        {:error, :no_api_key}
+      else
+        res =
+          Req.get!(
+            "https://api.pirateweather.net/forecast/#{api_key}/#{latlon}?exclude=alerts,minutely,hourly,daily"
+          )
+
+        # File.write!(sample_data_path(location), Jason.encode!(res.body, pretty: true))
+
+        Dash.Weather.parse_result(res.body)
+      end
     end
+  end
+
+  defp sample_data_path(%Dash.Location{name: name}) do
+    Path.join([:code.priv_dir(:dash), "sample_weather", "#{name}.json"])
   end
 
   # https://github.com/jjasghar/pirateweather/blob/ccccc1b67345611bd14d6eeeb49cd9cdc953c3f5/docs/API.md

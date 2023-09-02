@@ -37,9 +37,7 @@ defmodule Dash.Scene.Home do
     :ok = Phoenix.PubSub.subscribe(Dash.pub_sub(), Dash.topic())
     scale = Application.get_env(:dash, :scale, 1)
 
-    default_quote =
-      "“Being deeply loved by someone gives you strength, while loving someone deeply gives you courage…” – Lao Tzu"
-
+    quote = Dash.Trello.random_quote()
     commitment = Dash.Commitments.random_commitment()
 
     graph =
@@ -49,7 +47,7 @@ defmodule Dash.Scene.Home do
         render_background(g, scene.viewport, :white)
       end)
       |> render_time_text()
-      |> render_quote_text(default_quote)
+      |> render_quote_text(quote.text)
       |> render_commitment_text(commitment)
       |> render_calendar()
       |> render_pomodoro()

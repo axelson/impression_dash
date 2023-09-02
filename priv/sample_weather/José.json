@@ -1,0 +1,44 @@
+{
+  "currently": {
+    "apparentTemperature": 65.09,
+    "cloudCover": 0.93,
+    "dewPoint": 55.3,
+    "humidity": 0.84,
+    "icon": "cloudy",
+    "nearestStormBearing": 0,
+    "nearestStormDistance": 0,
+    "ozone": 307.15,
+    "precipIntensity": 0.0,
+    "precipIntensityError": 0.0,
+    "precipProbability": 0.0,
+    "precipType": "none",
+    "pressure": 983.72,
+    "summary": "Cloudy",
+    "temperature": 60.12,
+    "time": 1693686480,
+    "uvIndex": 0.0,
+    "visibility": 10.0,
+    "windBearing": 211,
+    "windGust": 3.16,
+    "windSpeed": 3.07
+  },
+  "elevation": 699,
+  "flags": {
+    "nearest-station": 0,
+    "sourceTimes": {
+      "gefs": "2023-09-02 12:00:00",
+      "gfs": "2023-09-02 12:00:00"
+    },
+    "sources": [
+      "ETOPO1",
+      "gfs",
+      "gefs"
+    ],
+    "units": "us",
+    "version": "V1.5.5"
+  },
+  "latitude": 50.061,
+  "longitude": 19.937,
+  "offset": 2.0,
+  "timezone": "Europe/Warsaw"
+}

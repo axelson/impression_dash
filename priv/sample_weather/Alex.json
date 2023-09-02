@@ -1,0 +1,49 @@
+{
+  "currently": {
+    "apparentTemperature": 84.44,
+    "cloudCover": 0.69,
+    "dewPoint": 59.18,
+    "humidity": 0.58,
+    "icon": "partly-cloudy-day",
+    "nearestStormBearing": 0,
+    "nearestStormDistance": 0,
+    "ozone": 286.15,
+    "precipIntensity": 0.0,
+    "precipIntensityError": 0.0,
+    "precipProbability": 0.0,
+    "precipType": "none",
+    "pressure": 1006.8,
+    "summary": "Partly Cloudy",
+    "temperature": 77.18,
+    "time": 1693686480,
+    "uvIndex": 6.28,
+    "visibility": 10.0,
+    "windBearing": 297,
+    "windGust": 5.17,
+    "windSpeed": 4.68
+  },
+  "elevation": 167,
+  "flags": {
+    "nearest-station": 0,
+    "sourceTimes": {
+      "gefs": "2023-09-02 12:00:00",
+      "gfs": "2023-09-02 12:00:00",
+      "hrrr_0-18": "2023-09-02 18:00:00",
+      "hrrr_18-48": "2023-09-02 12:00:00",
+      "hrrr_subh": "2023-09-02 18:00:00"
+    },
+    "sources": [
+      "ETOPO1",
+      "gfs",
+      "gefs",
+      "hrrrsubh",
+      "hrrr"
+    ],
+    "units": "us",
+    "version": "V1.5.5"
+  },
+  "latitude": 47.61,
+  "longitude": -122.333,
+  "offset": -7.0,
+  "timezone": "America/Los_Angeles"
+}

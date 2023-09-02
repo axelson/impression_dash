@@ -46,7 +46,22 @@ defmodule Dash.Trello do
   end
 
   def random_quote do
-    Enum.random(all_quotes())
+    if Dash.glamour_shot?() do
+      Enum.at(all_quotes(), 1)
+
+      %Dash.Quote{
+        id: nil,
+        text:
+          "\"Make it work, then make it beautiful, then if you really, really have to, make it fast. 90% of the time, if you make it beautiful, it will already be fast. So really, just make it beautiful!\" – Joe Armstrong",
+        url:
+          "https://trello.com/c/KR0ZTxa9/133-make-it-work-then-make-it-beautiful-then-if-you-really-really-have-to-make-it-fast-90-of-the-time-if-you-make-it-beautiful-it-wi",
+        card_id: "64d9d12445cfa8192e72896a",
+        inserted_at: ~N[2023-08-28 01:09:37],
+        updated_at: ~N[2023-08-28 01:09:37],
+      }
+    else
+      Enum.random(all_quotes())
+    end
   end
 
   def display_quote(%Dash.Quote{} = quote) do

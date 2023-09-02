@@ -1,0 +1,44 @@
+{
+  "currently": {
+    "apparentTemperature": 93.05,
+    "cloudCover": 0.08,
+    "dewPoint": 68.92,
+    "humidity": 0.72,
+    "icon": "clear-day",
+    "nearestStormBearing": 0,
+    "nearestStormDistance": 0,
+    "ozone": 275.39,
+    "precipIntensity": 0.0002,
+    "precipIntensityError": 0.0,
+    "precipProbability": 0.0,
+    "precipType": "rain",
+    "pressure": 1014.25,
+    "summary": "Clear",
+    "temperature": 78.65,
+    "time": 1693686480,
+    "uvIndex": 5.72,
+    "visibility": 10.0,
+    "windBearing": 68,
+    "windGust": 23.74,
+    "windSpeed": 20.07
+  },
+  "elevation": 10,
+  "flags": {
+    "nearest-station": 0,
+    "sourceTimes": {
+      "gefs": "2023-09-02 12:00:00",
+      "gfs": "2023-09-02 12:00:00"
+    },
+    "sources": [
+      "ETOPO1",
+      "gfs",
+      "gefs"
+    ],
+    "units": "us",
+    "version": "V1.5.5"
+  },
+  "latitude": 21.307,
+  "longitude": -157.858,
+  "offset": -11.0,
+  "timezone": "Etc/GMT+11"
+}
