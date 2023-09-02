@@ -306,7 +306,8 @@ defmodule Dash.Scene.Home do
       {x, y} = pos
       # Magic number that looks good
       y_fudge = 6
-      y_offset = FontMetrics.points_to_pixels(font_size) * lines - y_fudge
+      # Use floor to always have an integer value
+      y_offset = floor(FontMetrics.points_to_pixels(font_size)) * lines - y_fudge
       author_pos = {x + div(quote_width, 2), y + y_offset}
 
       author =
