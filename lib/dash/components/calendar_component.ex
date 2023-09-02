@@ -1,5 +1,6 @@
 defmodule Dash.CalendarComponent do
   use Scenic.Component
+  use ScenicWidgets.GraphTools.Upsertable
   import Scenic.Primitives
   alias Scenic.Graph
 
@@ -11,8 +12,7 @@ defmodule Dash.CalendarComponent do
   end
 
   @impl Scenic.Scene
-  def init(scene, _params, _opts) do
-    today = Date.utc_today()
+  def init(scene, %{today: today}, _opts) do
     day_width = 24
 
     width = 7 * day_width

@@ -99,6 +99,7 @@ defmodule Dash.Scene.Home do
         fetch_and_render_weather(graph, Dash.Locations.all())
         |> render_time_text()
         |> render_quote_text(quote.text)
+        |> render_calendar()
         |> render_pomodoro()
       end)
 
@@ -395,18 +396,23 @@ defmodule Dash.Scene.Home do
   end
 
   def render_calendar(graph) do
-    Dash.CalendarComponent.add_to_graph(
-      graph,
-      %{
-        today: Date.utc_today(),
-      },
-      t: {616, 350}
-    )
+    today =
+      DateTime.now!("Pacific/Honolulu")
+      |> DateTime.to_date()
+
+    GraphTools.upsert(graph, :calendar, fn g ->
+      Dash.CalendarComponent.upsert(
+        g,
+        %{
+          today: today,
+        },
+        id: :calendar,
+        t: {616, 350}
+      )
+    end)
   end
 
   def render_pomodoro(graph) do
-    Logger.info("in render_pomodoro/1")
-
     GraphTools.upsert(graph, :pomodoro_viz, fn g ->
       Dash.PomodoroBarVizComponent.upsert(
         g,
