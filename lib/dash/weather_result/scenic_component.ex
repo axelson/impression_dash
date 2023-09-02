@@ -51,7 +51,20 @@ defmodule Dash.WeatherResult.ScenicComponent do
             )
           end)
 
-	# TODO: Render even when weather result is not available
+        # weather_result =
+        #   case location.name do
+        #     "Tom" -> %{weather_result | icon: "clear-day"}
+        #     "Sergio" -> %{weather_result | icon: "clear-night"}
+        #     "Thibault" -> %{weather_result | icon: "rain"}
+        #     "Lucas" -> %{weather_result | icon: "lightning"}
+        #     "Sukanya" -> %{weather_result | icon: "fog"}
+        #     "Tyler" -> %{weather_result | icon: "wind"}
+        #     "Felt HQ" -> %{weather_result | icon: "sleet"}
+        #     "Home" -> %{weather_result | icon: "partly-cloudy-day"}
+        #     _ -> weather_result
+        #   end
+
+        # TODO: Render even when weather result is not available
         if weather_result && weather_result.temperature do
           graph
           |> GraphTools.upsert(:summary, fn g ->
@@ -163,7 +176,10 @@ defmodule Dash.WeatherResult.ScenicComponent do
   @impl GenServer
   # Why am I sending messages here??? Is this even being used?
   def handle_info({:weather_result, weather_result}, scene) do
-    Logger.warning("WeatherResult receiving weather result message! This may result in extra draw")
+    Logger.warning(
+      "WeatherResult receiving weather result message! This may result in extra draw"
+    )
+
     # Logger.info("weather_result: #{inspect(weather_result, pretty: true)}")
 
     scene =
