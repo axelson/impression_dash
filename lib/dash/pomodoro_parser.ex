@@ -1,5 +1,6 @@
 defmodule Dash.PomodoroParser do
-  def parse(csv) when is_binary(csv) do
+  def parse(csv, opts \\ []) when is_binary(csv) do
+    filter = Keyword.get(opts, :filter?, true)
     today = DateTime.now!("Pacific/Honolulu") |> DateTime.to_date()
 
     NimbleCSV.RFC4180.parse_string(csv)
@@ -15,7 +16,11 @@ defmodule Dash.PomodoroParser do
       }
     end)
     |> Enum.filter(fn row ->
-      DateTime.to_date(row.started_at) == today
+      if filter do
+        DateTime.to_date(row.started_at) == today
+      else
+        true
+      end
     end)
   end
 
