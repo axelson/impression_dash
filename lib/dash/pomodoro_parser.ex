@@ -1,7 +1,7 @@
 defmodule Dash.PomodoroParser do
   def parse(csv, opts \\ []) when is_binary(csv) do
     filter = Keyword.get(opts, :filter?, true)
-    today = DateTime.now!("Pacific/Honolulu") |> DateTime.to_date()
+    today = DateTime.now!(Dash.timezone()) |> DateTime.to_date()
 
     NimbleCSV.RFC4180.parse_string(csv)
     |> Enum.map(fn row ->
@@ -30,6 +30,8 @@ defmodule Dash.PomodoroParser do
     time_str
     |> NaiveDateTime.from_iso8601!()
     |> DateTime.from_naive!("Etc/UTC")
+    # |> DateTime.shift_zone!(Dash.timezone())
+    # HACK: Leave this hard-coded so that it works with the sample data
     |> DateTime.shift_zone!("Pacific/Honolulu")
   end
 

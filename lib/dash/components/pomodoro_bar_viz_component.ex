@@ -19,33 +19,32 @@ defmodule Dash.PomodoroBarVizComponent do
         graph = initialize_graph(stats)
         {:ok, push_graph(scene, graph)}
 
-      {:error, _} ->
+      {:error, error} ->
+	Logger.warning("pomodoro stats error: #{inspect(error, pretty: true)}")
         graph = Graph.build()
         graph = text(graph, "No pomodoro data", fill: :black, font: :unifont, font_size: 16)
         {:ok, push_graph(scene, graph)}
     end
   end
 
-  def initialize_graph(stats) do
+  def initialize_graph(pomodoros) do
     scale = Dash.Scale.new_continuous(domain: {5.5, 18.5}, range: {0, @width})
     scale_fn = Contex.Scale.domain_to_range_fn(scale)
-    now = DateTime.now!("Pacific/Honolulu")
+    now = DateTime.now!(Dash.timezone())
 
     graph =
       Graph.build()
       |> rect({@width, 1}, fill: :black, t: {0, 10})
 
-    Enum.reduce(stats, graph, fn row, graph ->
+    Enum.reduce(pomodoros, graph, fn pomodoro, graph ->
       graph
-      # work rect
-      |> draw_rect(row.started_at, row.finished_at, scale_fn, :red)
-      # limbo rect
-      # TODO: Draw up to 15 minutes of limbo even if there's no rest time
-      |> draw_rect(row.finished_at, row.rest_started_at, scale_fn, :orange)
-      # rest rect
-      |> draw_rect(row.rest_started_at, row.rest_finished_at, scale_fn, :blue)
+      # work-time rectangle
+      |> draw_rect(pomodoro.started_at, pomodoro.finished_at, scale_fn, :red)
+      # limbo-time rectangle
+      |> draw_rect(pomodoro.finished_at, pomodoro.rest_started_at, scale_fn, :orange)
+      # rest-time rectangle
+      |> draw_rect(pomodoro.rest_started_at, pomodoro.rest_finished_at, scale_fn, :blue)
     end)
-
     # 12 noon mark
     |> rect({2, 10}, fill: :black, t: {scale_fn.(12), 10})
     # current time

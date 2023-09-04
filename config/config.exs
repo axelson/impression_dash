@@ -20,6 +20,7 @@ config :dash, Dash.Repo,
   pool_size: 1
 
 config :dash, ecto_repos: [Dash.Repo]
+config :dash, :timezone, "Pacific/Honolulu"
 
 # connect the app's asset module to Scenic
 config :scenic, :assets, module: Dash.Assets

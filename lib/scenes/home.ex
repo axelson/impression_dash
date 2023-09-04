@@ -63,6 +63,7 @@ defmodule Dash.Scene.Home do
       scene
       |> GraphState.assign_and_push_graph(state, graph)
 
+    Logger.info("JAX #{__MODULE__} init/3 complete")
     {:ok, scene}
   end
 
@@ -219,7 +220,7 @@ defmodule Dash.Scene.Home do
 
   defp render_time_text(g) do
     now =
-      DateTime.now!("Pacific/Honolulu")
+      DateTime.now!(Dash.timezone())
       # The display takes about 30 seconds to fully refresh so adjust the rendered time to match
       |> DateTime.add(30, :second)
 
@@ -249,16 +250,11 @@ defmodule Dash.Scene.Home do
 
   defp render_quote_text(g, text) do
     pos = {550, 25}
-    # pos = {350, 25}
-    # |> FontMetrics.wrap(line_width, font_size, font_metrics)
 
     {quote, author} = get_quote_author(text)
     {display_text, font, font_size, font_metrics} = wrap_and_shorten_quote(quote)
 
     g
-    # |> GraphTools.upsert(:quote_rect, fn g ->
-    #   rect(g, {10, 10}, id: :quote_rect, fill: :red, t: pos)
-    # end)
     |> GraphTools.upsert(:quote_text, fn g ->
       text(g, display_text,
         id: :quote_text,
@@ -396,7 +392,7 @@ defmodule Dash.Scene.Home do
 
   def render_calendar(graph) do
     today =
-      DateTime.now!("Pacific/Honolulu")
+      DateTime.now!(Dash.timezone())
       |> DateTime.to_date()
 
     GraphTools.upsert(graph, :calendar, fn g ->
@@ -425,13 +421,19 @@ defmodule Dash.Scene.Home do
   def get_pomodoro_stats do
     try do
       Dash.PomodoroServer.get_stats()
+      |> tap(fn stats ->
+        Logger.info("fetched pomodoro stats: #{inspect(stats, pretty: true)}")
+      end)
+
       # stats =
       #   Dash.PomodoroParser.sample_csv()
       #   |> Dash.PomodoroParser.parse()
 
       # {:ok, stats}
     catch
-      :exit, _ -> {:error, :unable_to_fetch_stats}
+      :exit, _ ->
+        Logger.warning("Unable to fetch pomodoro stats because of `:exit`")
+        {:error, :unable_to_fetch_stats}
     end
   end
 

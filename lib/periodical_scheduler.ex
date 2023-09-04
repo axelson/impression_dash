@@ -76,7 +76,7 @@ defmodule PeriodicalScheduler do
   end
 
   def seconds_till_next_tick() do
-    now = DateTime.now!("Pacific/Honolulu") |> DateTime.to_time()
+    now = DateTime.now!(timezone()) |> DateTime.to_time()
 
     if now.hour < 6 do
       6 * 60 * 60
@@ -92,4 +92,6 @@ defmodule PeriodicalScheduler do
     IO.puts("Next tick in #{next_ms}")
     Process.send_after(self(), :tick, next_ms)
   end
+
+  defp timezone, do: Application.fetch_env!(:dash, :timezone)
 end

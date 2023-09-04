@@ -19,7 +19,13 @@ defmodule Dash.PomodoroServer do
   end
 
   def get_stats do
-    GenServer.call(__MODULE__, :get_stats)
+    # HACK TIME!
+    # For some reason the PomodoroServer isn't up by the time the Home scene is first run?
+    if Dash.glamour_shot?() do
+      {:ok, Dash.PomodoroSampleData.sample_static()}
+    else
+      GenServer.call(__MODULE__, :get_stats)
+    end
   end
 
   @impl GenServer
