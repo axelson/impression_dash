@@ -28,7 +28,7 @@ defmodule Dash.PomodoroBarVizComponent do
   end
 
   def initialize_graph(pomodoros) do
-    scale = Dash.Scale.new_continuous(domain: {5.5, 18.5}, range: {0, @width})
+    scale = Dash.Scale.new_continuous(domain: {6.0, 18.5}, range: {0, @width})
     scale_fn = Contex.Scale.domain_to_range_fn(scale)
     now = DateTime.now!(Dash.timezone())
 
