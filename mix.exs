@@ -31,9 +31,6 @@ defmodule Dash.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      # Host-only deps
-      {:scenic_driver_local, "~> 0.11.0-beta.0", targets: :host},
-
       # Other deps
       {:mahaul, "~> 0.3.0"},
       {:zoneinfo, "~> 0.1.5"},
@@ -48,6 +45,7 @@ defmodule Dash.MixProject do
       {:exsync, path: "~/dev/forks/exsync", override: true, only: :dev},
       # {:exsync, "~> 0.3", only: :dev},
       {:freedom_formatter, "~> 2.0"},
+      {:mneme, ">= 0.0.0", only: :test},
       {:nimble_csv, "~> 1.2"},
       {:nimble_parsec, "~> 1.2"},
       {:phoenix_pubsub, "~> 2.1"},

@@ -408,33 +408,15 @@ defmodule Dash.Scene.Home do
   end
 
   def render_pomodoro(graph) do
+    Logger.info("Render PomodoroBarVizComponent")
     GraphTools.upsert(graph, :pomodoro_viz, fn g ->
       Dash.PomodoroBarVizComponent.upsert(
         g,
-        %{stats: get_pomodoro_stats()},
+	Dash.PomodoroBarVizComponent.fetch_params(),
         id: :pomodoro_viz,
         t: {16, 460}
       )
     end)
-  end
-
-  def get_pomodoro_stats do
-    try do
-      Dash.PomodoroServer.get_stats()
-      |> tap(fn stats ->
-        Logger.info("fetched pomodoro stats: #{inspect(stats, pretty: true)}")
-      end)
-
-      # stats =
-      #   Dash.PomodoroParser.sample_csv()
-      #   |> Dash.PomodoroParser.parse()
-
-      # {:ok, stats}
-    catch
-      :exit, _ ->
-        Logger.warning("Unable to fetch pomodoro stats because of `:exit`")
-        {:error, :unable_to_fetch_stats}
-    end
   end
 
   defp wrap_and_shorten_quote(text, try \\ 1) do

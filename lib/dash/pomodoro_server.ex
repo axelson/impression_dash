@@ -55,8 +55,12 @@ defmodule Dash.PomodoroServer do
   end
 
   def do_refresh(state) do
-    case Req.get("http://pomodoro.nerves-side-screen.local/api/stats.csv", max_retries: 2) do
+    url = "http://pomodoro.nerves-side-screen.local/api/stats.csv"
+    Logger.debug("Fetching pomodoro stats from #{url}")
+
+    case Req.get(url, max_retries: 2) do
       {:ok, %Req.Response{status: 200, body: body}} when is_binary(body) ->
+	Logger.debug("Fetched stats successfully! (body_length: #{byte_size(body)})")
         rows = Dash.PomodoroParser.parse(body)
         %{state | rows: rows}
 
