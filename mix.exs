@@ -34,6 +34,8 @@ defmodule Dash.MixProject do
       # Other deps
       {:mahaul, "~> 0.3.0"},
       {:zoneinfo, "~> 0.1.5"},
+      {:machete, ">= 0.0.0", only: [:test]},
+      # {:machete, path: "~/dev/forks/machete", only: [:test]},
       {:quantum, "~> 3.0"},
       # A tiny bit weird to rely on this for hosts
       {:vintage_net, "~> 0.13.0"},

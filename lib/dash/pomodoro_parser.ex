@@ -1,7 +1,7 @@
 defmodule Dash.PomodoroParser do
   def parse(csv, opts \\ []) when is_binary(csv) do
     filter = Keyword.get(opts, :filter?, true)
-    today = DateTime.now!(Dash.timezone()) |> DateTime.to_date()
+    today = Keyword.get(opts, :today, DateTime.now!(Dash.timezone()) |> DateTime.to_date())
 
     NimbleCSV.RFC4180.parse_string(csv)
     |> Enum.map(fn row ->
@@ -12,7 +12,7 @@ defmodule Dash.PomodoroParser do
         finished_at: to_hawaii_time(finished_at),
         rest_started_at: to_hawaii_time(rest_started_at),
         rest_finished_at: to_hawaii_time(rest_finished_at),
-        total_seconds: total_seconds,
+        total_seconds: String.to_integer(total_seconds),
       }
     end)
     |> Enum.filter(fn row ->
