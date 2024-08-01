@@ -34,7 +34,7 @@ config :dash, :viewport,
   # 7.3"
   # size: {800, 480},
   # local dev
-  size: {800 * 2, 480 * 2},
+  size: {800 * 1, 480 * 1},
   theme: :dark,
   default_scene: Dash.Scene.Home,
   # default_scene: Dash.Scene.HomeOld,

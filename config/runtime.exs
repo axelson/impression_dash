@@ -7,9 +7,10 @@ end
 config :dash,
   debug_logging: false,
   # gh_stats_base_url: "http://192.168.1.2:4004",
-  gh_stats_base_url: "http://localhost:4000",
+  # gh_stats_base_url: "http://localhost:4000",
+  gh_stats_base_url: "http://localhost:4001",
   # Use scale of 2 so I can actually read the display in host mode
-  scale: 2,
+  scale: 1,
   locations: [
     # %Dash.Location{
     #   name: "Iberian",
@@ -59,4 +60,5 @@ config :dash, Dash.QuantumScheduler,
   ]
 
 # Code.require_file("/mnt/arch_linux/home/jason/dev/inky_impression_livebook/.target.secret.exs")
-Code.require_file("/mnt/arch_linux/home/jason/dev/inky_impression_livebook/.target.public.exs")
+# Code.require_file("/mnt/arch_linux/home/jason/dev/inky_impression_livebook/.target.public.exs")
+Code.require_file("/Users/jason/dev/inky_tester/.target.secret.exs")
