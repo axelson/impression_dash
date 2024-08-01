@@ -27,8 +27,13 @@ defmodule Dash.PomodoroBarVizComponent do
     now = params[:now]
 
     case params[:stats] do
-      {:ok, stats} ->
+      {:ok, [_ | _] = stats} ->
         graph = initialize_graph(stats, now)
+        {:ok, push_graph(scene, graph)}
+
+      {:ok, []} ->
+        graph = Graph.build()
+        graph = text(graph, "Empty pomodoro data!", fill: :black, font: :unifont, font_size: 16)
         {:ok, push_graph(scene, graph)}
 
       {:error, error} ->
@@ -40,7 +45,8 @@ defmodule Dash.PomodoroBarVizComponent do
   end
 
   def initialize_graph(pomodoros, now) do
-    scale = Dash.Scale.new_continuous(domain: {6.0, 18.5}, range: {0, @width})
+    # scale = Dash.Scale.new_continuous(domain: {7.5, 20.5}, range: {0, @width})
+    scale = Dash.Scale.new_continuous(domain: {6.5, 20.5}, range: {0, @width})
     scale_fn = Contex.Scale.domain_to_range_fn(scale)
 
     graph =

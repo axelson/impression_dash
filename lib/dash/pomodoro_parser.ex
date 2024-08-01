@@ -8,10 +8,10 @@ defmodule Dash.PomodoroParser do
       [started_at, finished_at, rest_started_at, rest_finished_at, total_seconds] = row
 
       %{
-        started_at: to_hawaii_time(started_at),
-        finished_at: to_hawaii_time(finished_at),
-        rest_started_at: to_hawaii_time(rest_started_at),
-        rest_finished_at: to_hawaii_time(rest_finished_at),
+        started_at: to_local_time(started_at),
+        finished_at: to_local_time(finished_at),
+        rest_started_at: to_local_time(rest_started_at),
+        rest_finished_at: to_local_time(rest_finished_at),
         total_seconds: String.to_integer(total_seconds),
       }
     end)
@@ -24,15 +24,13 @@ defmodule Dash.PomodoroParser do
     end)
   end
 
-  def to_hawaii_time(""), do: nil
+  def to_local_time(""), do: nil
 
-  def to_hawaii_time(time_str) do
+  def to_local_time(time_str) do
     time_str
     |> NaiveDateTime.from_iso8601!()
     |> DateTime.from_naive!("Etc/UTC")
-    # |> DateTime.shift_zone!(Dash.timezone())
-    # HACK: Leave this hard-coded so that it works with the sample data
-    |> DateTime.shift_zone!("Pacific/Honolulu")
+    |> DateTime.shift_zone!(Dash.timezone())
   end
 
   def sample_csv do

@@ -1,5 +1,6 @@
 defmodule Dash.GhStats do
   use TypedStruct
+  require Logger
 
   typedstruct module: Row do
     field :num_prs_needs_review, :integer
@@ -25,13 +26,12 @@ defmodule Dash.GhStats do
       Path.join([:code.priv_dir(:dash), "sample_gh_stats.csv"])
       |> File.read!()
       |> parse()
-      |> then(&{:ok, &1})
     else
       Req.new(base_url: gh_stats_base_url())
       |> Req.request(url: "/api/stats.csv")
       |> case do
         {:ok, response} ->
-          {:ok, parse(response.body)}
+          parse(response.body)
 
         res ->
           {:error, res}
@@ -65,6 +65,11 @@ defmodule Dash.GhStats do
             inserted_at: NaiveDateTime.from_iso8601!(Enum.at(raw_row, 6)),
           }
         end)
+        |> then(&{:ok, &1})
+
+      res ->
+        Logger.warning("Unable to parse as stats #{inspect(res)}")
+        {:error, {:unable_to_parse, res}}
     end
   end
 
