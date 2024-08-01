@@ -55,7 +55,7 @@ defmodule Dash.PomodoroServer do
   end
 
   def do_refresh(state) do
-    url = "http://pomodoro.nerves-side-screen.local/api/stats.csv"
+    url = pomodoro_server_url() <> "/api/stats.csv"
     Logger.debug("Fetching pomodoro stats from #{url}")
 
     case Req.get(url, max_retries: 2) do
@@ -68,5 +68,9 @@ defmodule Dash.PomodoroServer do
         Logger.warning("Unable to fetch pomodoro stats: #{inspect(err)}")
         state
     end
+  end
+
+  def pomodoro_server_url do
+    Dash.Env.pomodoro_server_url()
   end
 end
