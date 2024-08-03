@@ -25,34 +25,39 @@ config :dash, :timezone, "Pacific/Honolulu"
 # connect the app's asset module to Scenic
 config :scenic, :assets, module: Dash.Assets
 
-# Configure the main viewport for the Scenic application
-config :dash, :viewport,
-  name: :main_viewport,
-  # Make the ssize match the impression's resolution
-  # 5.7"
-  # size: {600, 448},
-  # 7.3"
-  # size: {800, 480},
-  # local dev
-  size: {800 * 1, 480 * 1},
-  theme: :dark,
-  default_scene: Dash.Scene.Home,
-  # default_scene: Dash.Scene.HomeOld,
-  # default_scene: Dash.Scene.HomeScaled,
-  drivers: [
-    [
-      module: Scenic.Driver.Local,
-      name: :local,
-      window: [resizeable: false, title: "dash"],
-      on_close: :stop_system,
-    ],
-  ]
-
 case Mix.env() do
   :dev ->
+    config :dash, :viewport,
+      name: :main_viewport,
+      # Make the ssize match the impression's resolution
+      # 5.7"
+      # size: {600, 448},
+      # 7.3"
+      # size: {800, 480},
+      # local dev
+      size: {800 * 1, 480 * 1},
+      theme: :dark,
+      default_scene: Dash.Scene.Home,
+      # default_scene: Dash.Scene.HomeOld,
+      # default_scene: Dash.Scene.HomeScaled,
+      drivers: [
+        [
+          module: Scenic.Driver.Local,
+          name: :local,
+          window: [resizeable: false, title: "dash"],
+          on_close: :stop_system,
+        ],
+      ]
+
     config :exsync,
       reload_timeout: 150,
       reload_callback: {ScenicLiveReload, :reload_current_scenes, []}
+
+  :test ->
+    config :dash, start_weather_server: false
+
+    config :logger,
+      level: :info
 
   _ ->
     nil

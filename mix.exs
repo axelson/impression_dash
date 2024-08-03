@@ -16,7 +16,7 @@ defmodule Dash.MixProject do
 
   def aliases do
     [
-      test: "test --no-start",
+      # test: "test --no-start",
     ]
   end
 
