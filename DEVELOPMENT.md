@@ -1,6 +1,6 @@
 # Random notes
 
-- PeriodicalScheduler calls Dash.Weather.Server
+- Quantum calls Dash.Weather.Server
 - Dash.Weather.Server uses Phoenix.PubSub (or Scenic sensor) to update Dash.Scene.Home
 
 Sparkline modules
