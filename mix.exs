@@ -55,6 +55,7 @@ defmodule Dash.MixProject do
       {:phoenix_pubsub, "~> 2.1"},
       {:req, "~> 0.3.0"},
       {:scenic, "~> 0.11"},
+      {:scenic_driver_local, "~> 0.11.0", only: :dev},
       {:scenic_live_reload, "~> 0.3.0", only: :dev},
       {:scenic_widget_contrib, path: "~/dev/forks/scenic-widget-contrib"},
       # {:scenic_widget_contrib, github: "axelson/scenic-widget-contrib", branch: "jax"},
