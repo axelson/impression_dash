@@ -409,10 +409,11 @@ defmodule Dash.Scene.Home do
 
   def render_pomodoro(graph) do
     Logger.info("Render PomodoroBarVizComponent")
+
     GraphTools.upsert(graph, :pomodoro_viz, fn g ->
       Dash.PomodoroBarVizComponent.upsert(
         g,
-	Dash.PomodoroBarVizComponent.fetch_params(),
+        Dash.PomodoroBarVizComponent.fetch_params(),
         id: :pomodoro_viz,
         t: {16, 460}
       )

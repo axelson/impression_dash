@@ -60,7 +60,7 @@ defmodule Dash.PomodoroServer do
 
     case Req.get(url, max_retries: 2) do
       {:ok, %Req.Response{status: 200, body: body}} when is_binary(body) ->
-	Logger.debug("Fetched stats successfully! (body_length: #{byte_size(body)})")
+        Logger.debug("Fetched stats successfully! (body_length: #{byte_size(body)})")
         rows = Dash.PomodoroParser.parse(body)
         %{state | rows: rows}
 

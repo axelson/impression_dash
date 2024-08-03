@@ -14,17 +14,17 @@ defmodule Dash.PomodoroParserTest do
     expected = [
       %{
         started_at: datetime(roughly: ~U[2023-11-04 19:03:12Z], time_zone: "Pacific/Honolulu"),
-	finished_at: datetime(roughly: ~U[2023-11-04 19:09:12Z], time_zone: "Pacific/Honolulu"),
-	rest_started_at: nil,
-	rest_finished_at: nil,
-	total_seconds: 1800,
+        finished_at: datetime(roughly: ~U[2023-11-04 19:09:12Z], time_zone: "Pacific/Honolulu"),
+        rest_started_at: nil,
+        rest_finished_at: nil,
+        total_seconds: 1800,
       },
       %{
         started_at: datetime(roughly: ~U[2023-11-04 19:10:13Z], time_zone: "Pacific/Honolulu"),
-	finished_at: datetime(roughly: ~U[2023-11-04 19:26:16Z], time_zone: "Pacific/Honolulu"),
-	rest_started_at: nil,
-	rest_finished_at: nil,
-	total_seconds: 1800,
+        finished_at: datetime(roughly: ~U[2023-11-04 19:26:16Z], time_zone: "Pacific/Honolulu"),
+        rest_started_at: nil,
+        rest_finished_at: nil,
+        total_seconds: 1800,
       },
     ]
 
