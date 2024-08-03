@@ -35,6 +35,8 @@ defmodule Dash.MixProject do
       {:mahaul, "~> 0.3.0"},
       {:zoneinfo, "~> 0.1.5"},
       {:machete, ">= 0.0.0", only: [:test]},
+      {:efx, "~> 0.2.0"},
+      # {:efx, path: "~/dev/forks/efx"},
       # {:machete, path: "~/dev/forks/machete", only: [:test]},
       {:quantum, "~> 3.0"},
       # A tiny bit weird to rely on this for hosts

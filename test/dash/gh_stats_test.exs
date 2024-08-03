@@ -1,5 +1,6 @@
 defmodule Dash.GhStatsTest do
   use ExUnit.Case
+  use EfxCase
   use Machete
 
   test "returns error when columns don't match" do
@@ -9,6 +10,29 @@ defmodule Dash.GhStatsTest do
     assert ExUnit.CaptureLog.capture_log(fn ->
              assert Dash.GhStats.parse(csv) ~> {:error, {:unable_to_parse, term()}}
            end) =~ "Unable to parse"
+  end
+
+  test "efx test" do
+    csv = """
+    num_prs_needs_review,num_prs_approved_not_merged,num_prs_open,num_outstanding_review_requests,num_prs_need_review_by_login,num_assigned_prs_by_login,inserted_at
+    39,9,73,14,"{""Clebal"":3,""axelson"":4}","{""ChrisLoer"":1,""axelson"":1}",2024-08-01 12:00:04
+    """
+
+    bind(Dash.GhStats, :fetch_data, fn -> {:ok, csv} end)
+
+    assert Dash.GhStats.fetch_stats() ==
+             {:ok,
+              [
+                %Dash.GhStats.Row{
+                  inserted_at: ~N[2024-08-01 12:00:04],
+                  num_assigned_prs_by_login: %{"ChrisLoer" => 1, "axelson" => 1},
+                  num_prs_need_review_by_login: %{"Clebal" => 3, "axelson" => 4},
+                  num_outstanding_review_requests: 14,
+                  num_prs_open: 73,
+                  num_prs_approved_not_merged: 9,
+                  num_prs_needs_review: 39
+                }
+              ]}
   end
 
   test "can parse with correct columns" do

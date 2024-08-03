@@ -221,7 +221,7 @@ defmodule Dash.Scene.HomeOld do
 
     task =
       Task.Supervisor.async_nolink(Dash.task_sup(), fn ->
-        {:task, {:fetch_gh_stats, Dash.GhStats.run()}}
+        {:task, {:fetch_gh_stats, Dash.GhStats.fetch_stats()}}
       end)
 
     state = %State{scene.assigns.state | gh_stats_task_ref: task.ref}

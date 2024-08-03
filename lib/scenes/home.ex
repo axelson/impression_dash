@@ -179,7 +179,7 @@ defmodule Dash.Scene.Home do
   end
 
   def fetch_open_prs() do
-    case Dash.GhStats.fetch() do
+    case Dash.GhStats.fetch_stats() do
       {:ok, rows} ->
         row = hd(rows)
         {row.num_prs_need_review_by_login, row.num_assigned_prs_by_login}

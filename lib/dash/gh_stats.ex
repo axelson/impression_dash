@@ -1,5 +1,6 @@
 defmodule Dash.GhStats do
   use TypedStruct
+  use Efx
   require Logger
 
   typedstruct module: Row do
@@ -12,29 +13,24 @@ defmodule Dash.GhStats do
     field :inserted_at, :naive_datetime
   end
 
-  def run do
-    Req.new(base_url: gh_stats_base_url())
-    |> Req.request(url: "/api/stats.csv")
-    |> case do
-      {:ok, response} ->
-        parse(response.body)
+  def fetch_stats do
+    case fetch_data() do
+      {:ok, csv} -> parse(csv)
+      {:error, error} -> {:error, error}
     end
   end
 
-  def fetch do
+  @spec fetch_data() :: {:ok, String.t()} | {:error, any()}
+  defeffect fetch_data do
     if Dash.glamour_shot?() do
       Path.join([:code.priv_dir(:dash), "sample_gh_stats.csv"])
-      |> File.read!()
-      |> parse()
+      |> File.read()
     else
       Req.new(base_url: gh_stats_base_url())
       |> Req.request(url: "/api/stats.csv")
       |> case do
-        {:ok, response} ->
-          parse(response.body)
-
-        res ->
-          {:error, res}
+        {:ok, response} -> {:ok, response.body}
+        res -> {:error, res}
       end
     end
   end
