@@ -32,7 +32,7 @@ defmodule Dash.MixProject do
   defp deps do
     [
       # Other deps
-      {:mahaul, "~> 0.3.0"},
+      {:mahaul, "~> 0.6"},
       {:zoneinfo, "~> 0.1.5"},
       {:machete, ">= 0.0.0", only: [:test]},
       {:efx, "~> 0.2.0"},
@@ -53,12 +53,12 @@ defmodule Dash.MixProject do
       {:nimble_csv, "~> 1.2"},
       {:nimble_parsec, "~> 1.2"},
       {:phoenix_pubsub, "~> 2.1"},
-      {:req, "~> 0.3.0"},
+      {:req, "~> 0.5"},
       {:scenic, "~> 0.11"},
       {:scenic_driver_local, "~> 0.11.0", only: :dev},
       {:scenic_live_reload, "~> 0.3.0", only: :dev},
-      {:scenic_widget_contrib, path: "~/dev/forks/scenic-widget-contrib"},
-      # {:scenic_widget_contrib, github: "axelson/scenic-widget-contrib", branch: "jax"},
+      # {:scenic_widget_contrib, path: "~/dev/forks/scenic-widget-contrib"},
+      {:scenic_widget_contrib, github: "axelson/scenic-widget-contrib", branch: "jax"},
       # {:scenic_widget_contrib, github: "axelson/scenic-widget-contrib", branch: "draw-utils"},
       {:typed_struct, "~> 0.3.0"},
     ]
